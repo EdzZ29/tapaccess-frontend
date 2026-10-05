@@ -3,7 +3,7 @@ import { cache } from "react";
 import { envUrl } from "./env-url";
 import type { PublicProfile } from "./types";
 
-const API_URL = envUrl(process.env.API_URL, "http://localhost:4000");
+const API_URL = envUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000");
 
 export type ProfileResult =
   | { kind: "ok"; profile: PublicProfile }

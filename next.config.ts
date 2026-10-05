@@ -17,11 +17,12 @@ function normalizeUrl(value: string | undefined): string | null {
 // valid; all problems are reported together in one readable message instead
 // of a cryptic "Failed to load next.config.ts".
 const onVercelProduction = process.env.VERCEL_ENV === "production";
-const apiUrl = normalizeUrl(process.env.API_URL);
+// API_URL is preferred; NEXT_PUBLIC_API_URL is accepted too (the API address isn't secret).
+const apiUrl = normalizeUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL);
 const siteUrl = normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL);
 if (onVercelProduction) {
   const problems: string[] = [];
-  if (!apiUrl) problems.push("API_URL — your Render API address, e.g. https://tapaccess-api.onrender.com");
+  if (!apiUrl) problems.push("API_URL (or NEXT_PUBLIC_API_URL) — your Render API address, e.g. https://tapaccess-backend.onrender.com");
   if (!siteUrl) problems.push("NEXT_PUBLIC_SITE_URL — this site's address, e.g. https://tapaccess-frontend.vercel.app");
   if (!process.env.INTERNAL_API_KEY) problems.push("INTERNAL_API_KEY — the same secret value you set on Render");
   if (problems.length) {

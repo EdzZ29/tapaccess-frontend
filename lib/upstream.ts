@@ -1,7 +1,7 @@
 import "server-only";
 import { envUrl } from "./env-url";
 
-export const API_URL = envUrl(process.env.API_URL, "http://localhost:4000");
+export const API_URL = envUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000");
 
 export const SLUG_RE = /^[a-z0-9-]{1,64}$/;
 
