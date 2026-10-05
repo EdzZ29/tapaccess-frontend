@@ -1,5 +1,7 @@
 import { API_URL, SLUG_RE, upstreamHeaders } from "@/lib/upstream";
 
+const IOS = /iPhone|iPad|iPod/;
+
 /**
  * "Save contact": streams the card's vCard from the API. Handled here rather
  * than by the /api rewrite so the API sees the visitor's IP (per-visitor
@@ -24,11 +26,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   }
   if (!upstream.ok) return Response.redirect(profilePage, 303);
 
+  // iPhone/iPad Safari shows an *inline* vCard as the "Create New Contact"
+  // card, one tap from saved; as an attachment it would only offer a
+  // download into Files. Android and desktops get a normal download.
+  // (iPadOS claims to be a Mac, so the page also asks with ?inline=1.)
+  const disposition = upstream.headers.get("content-disposition") ?? 'attachment; filename="contact.vcf"';
+  const inline = new URL(request.url).searchParams.get("inline") === "1" || IOS.test(request.headers.get("user-agent") ?? "");
+
   return new Response(upstream.body, {
     status: 200,
     headers: {
       "Content-Type": upstream.headers.get("content-type") ?? "text/vcard; charset=utf-8",
-      "Content-Disposition": upstream.headers.get("content-disposition") ?? 'attachment; filename="contact.vcf"',
+      "Content-Disposition": inline ? disposition.replace(/^\s*attachment/i, "inline") : disposition,
+      Vary: "User-Agent",
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
     },

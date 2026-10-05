@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { WEEKDAYS } from "@/lib/constants";
 import { PLAN_FEATURES } from "@/lib/plans";
-import type { CardPlan, OpeningHoursDay, ProfileFields } from "@/lib/types";
-import { mapsSearchUrl } from "@/lib/utils";
+import type { CardPlan, OpeningHoursDay, ProfileFields, TapAction } from "@/lib/types";
+import { cn, mapsSearchUrl } from "@/lib/utils";
 import { EditorCard, TextInput } from "./controls";
 import { ImagePicker } from "./image-picker";
+import { effectiveTapAction } from "./model";
 
 export interface TabProps<T> {
   value: T;
@@ -77,6 +78,46 @@ export function UpgradeButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+const TAP_ACTIONS: { value: TapAction; label: string; description: string }[] = [
+  { value: "profile", label: "Show the profile", description: "The page opens as usual." },
+  { value: "save_contact", label: "Save contact", description: "Opens the phone's add-contact screen straight away." },
+  { value: "call", label: "Call", description: "Shows a big Call button; some phones open the dialer by themselves." },
+];
+
+function TapActionCard({ value: p, onChange }: { value: ProfileFields; onChange: (patch: Partial<ProfileFields>) => void }) {
+  const effective = effectiveTapAction(p);
+  return (
+    <EditorCard
+      title="When the card is tapped"
+      description="Phones never save a contact or dial without asking, so the visitor confirms with one tap. The profile is always one tap away."
+    >
+      <div role="radiogroup" aria-label="When the card is tapped" className="grid gap-2 sm:grid-cols-3">
+        {TAP_ACTIONS.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={p.tapAction === o.value}
+            onClick={() => onChange({ tapAction: o.value })}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+              p.tapAction === o.value ? "border-brand bg-brand-soft text-brand-ink" : "border-line text-ink hover:border-line-strong",
+            )}
+          >
+            <span className="font-medium">{o.label}</span>
+            <span className="block text-xs text-ink-3">{o.description}</span>
+          </button>
+        ))}
+      </div>
+      {effective !== p.tapAction && (
+        <p role="status" className="rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning-ink">
+          {p.tapAction === "call" ? "Add a phone number" : "Add a phone number or email"} above — until then a tap shows the profile.
+        </p>
+      )}
+    </EditorCard>
+  );
+}
+
 export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<ProfileFields>) {
   const full = PLAN_FEATURES[plan].sections === "all";
   const setDay = (day: number, patch: Partial<OpeningHoursDay>) =>
@@ -123,6 +164,8 @@ export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<Pro
           maxLength={2048}
         />
       </EditorCard>
+
+      <TapActionCard value={p} onChange={onChange} />
 
       <EditorCard
         title="Opening hours"

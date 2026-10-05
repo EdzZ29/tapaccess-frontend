@@ -68,6 +68,9 @@ export interface OpeningHoursDay {
   close: string;
 }
 
+/** What happens the moment someone taps the card and the page opens. */
+export type TapAction = "profile" | "save_contact" | "call";
+
 export interface ProfileFields {
   businessName: string;
   tagline: string | null;
@@ -85,6 +88,7 @@ export interface ProfileFields {
   openingHours: OpeningHoursDay[];
   hoursNote: string | null;
   theme: Theme;
+  tapAction: TapAction;
 }
 
 export interface SectionItem {
@@ -179,6 +183,8 @@ export interface PublicProfile {
   openingHours: OpeningHoursDay[];
   hoursNote: string | null;
   theme: Theme;
+  /** Already falls back to "profile" (API side) when the card can't do it. */
+  tapAction: TapAction;
   sections: {
     type: SectionType;
     title: string | null;

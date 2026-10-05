@@ -4,10 +4,12 @@ import type {
   CardDetail,
   CardPlan,
   ProfileDocument,
+  ProfileFields,
   PublicProfile,
   Section,
   SectionItem,
   SocialLink,
+  TapAction,
 } from "@/lib/types";
 import { normalizeLink } from "@/lib/utils";
 
@@ -30,7 +32,7 @@ export const rowKey = (row: { id?: string; _key?: string }) => row.id ?? row._ke
 
 export function docFromCard(card: CardDetail): EditorDoc {
   return {
-    profile: structuredClone(card.profile),
+    profile: { ...structuredClone(card.profile), tapAction: card.profile.tapAction ?? "profile" },
     sections: structuredClone(card.sections),
     buttons: structuredClone(card.buttons),
     socialLinks: structuredClone(card.socialLinks),
@@ -66,6 +68,16 @@ export function move<T>(list: T[], index: number, delta: -1 | 1): T[] {
   return next;
 }
 
+/**
+ * Mirrors the API: an automatic call needs a phone number, saving a contact
+ * needs something to save. Otherwise the tap simply shows the profile.
+ */
+export function effectiveTapAction(p: Pick<ProfileFields, "tapAction" | "phone" | "email" | "whatsapp">): TapAction {
+  if (p.tapAction === "call" && !p.phone) return "profile";
+  if (p.tapAction === "save_contact" && !p.phone && !p.email && !p.whatsapp) return "profile";
+  return p.tapAction ?? "profile";
+}
+
 const isLive = (i: SectionItem, now: number) =>
   i.enabled && (!i.startsAt || new Date(i.startsAt).getTime() <= now) && (!i.endsAt || new Date(i.endsAt).getTime() >= now);
 
@@ -97,6 +109,7 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
     openingHours: p.openingHours,
     hoursNote: p.hoursNote,
     theme: p.theme,
+    tapAction: effectiveTapAction(p),
     sections: doc.sections
       .filter((s) => s.enabled || sectionAlwaysOn(plan, s.type))
       .map((s) => ({

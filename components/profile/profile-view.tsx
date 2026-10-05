@@ -12,7 +12,8 @@ import { openStatus, useHydrated } from "./hours";
 import { socialButtonStyle } from "./brand-colors";
 import { BrandMark, ButtonIcon } from "./icons";
 import { HERO_BUTTON_COUNT, heroText, isCallLink, ProfileSection, resolveButtonHref, vcardHref } from "./profile-sections";
-import { backgroundStyle, buttonStyle, headingStyle, shapeClass, themeVars } from "./theme";
+import { TapSheet } from "./tap-sheet";
+import { backgroundStyle, buttonStyle, headingStyle, HIGHLIGHT, shapeClass, themeVars } from "./theme";
 import { TrackingProvider, useTracking } from "./tracking";
 
 interface ProfileViewProps {
@@ -33,7 +34,7 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
       <div style={{ ...themeVars(t), ...backgroundStyle(t) }} className={cn(
           // overflow-wrap:anywhere lets an unbroken word (a long name, URL or
           // typo-run) wrap instead of running off the screen.
-          "@container w-full antialiased [overflow-wrap:anywhere]",
+          "@container relative w-full antialiased [overflow-wrap:anywhere]",
           embedded ? "min-h-full" : "min-h-dvh",
         )}
       >
@@ -53,6 +54,7 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
           </footer>
           <ActionBar profile={profile} />
         </div>
+        <TapSheet profile={profile} embedded={embedded} />
       </div>
     </TrackingProvider>
   );
@@ -176,14 +178,6 @@ function heroActions(profile: PublicProfile): HeroAction[] {
   // Stable sort: call first, everything else keeps the admin's order.
   return actions.sort((a, b) => Number(isCallLink(b.href)) - Number(isCallLink(a.href)));
 }
-
-/** Accent fill that reads as "the" action, on a photo or on a plain background. */
-const HIGHLIGHT: CSSProperties = {
-  background: "var(--p-accent)",
-  color: "var(--p-on-accent)",
-  borderColor: "transparent",
-  boxShadow: "0 10px 30px -12px var(--p-accent)",
-};
 
 function heroButtonStyle(primary: boolean, onPhoto: boolean, t: PublicProfile["theme"], highlighted: boolean): CSSProperties {
   if (highlighted) return HIGHLIGHT;
@@ -311,7 +305,7 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
 // ─── Sticky action bar ──────────────────────────────────────────────────────
 
 function ActionBar({ profile }: { profile: PublicProfile }) {
-  const { preview, slug, track } = useTracking();
+  const { slug } = useTracking();
   const c = profile.contact;
   const t = profile.theme;
   const shape = shapeClass(t);
@@ -345,22 +339,16 @@ function ActionBar({ profile }: { profile: PublicProfile }) {
           </ActionLink>
         )}
         {canSave && (
-          <a
+          <ActionLink
             href={vcardHref(slug)}
-            onClick={(e) => {
-              if (preview) {
-                e.preventDefault();
-                toast.info("Save contact downloads a vCard on the live page");
-                return;
-              }
-              track("contact", "vcard");
-            }}
+            kind="contact"
+            trackId="vcard"
             className={cn("flex h-[52px] items-center justify-center gap-2 border text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shape)}
             style={{ borderColor: "var(--p-border)", color: "var(--p-text)", background: "var(--p-surface)" }}
           >
             <UserPlus className="h-[18px] w-[18px]" />
             Save contact
-          </a>
+          </ActionLink>
         )}
       </div>
     </div>

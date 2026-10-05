@@ -50,6 +50,14 @@ export function backgroundStyle(t: Theme): CSSProperties {
   return { backgroundColor: t.backgroundColor };
 }
 
+/** Accent fill that reads as "the" action, on a photo or on a plain background. */
+export const HIGHLIGHT: CSSProperties = {
+  background: "var(--p-accent)",
+  color: "var(--p-on-accent)",
+  borderColor: "transparent",
+  boxShadow: "0 10px 30px -12px var(--p-accent)",
+};
+
 export const shapeClass = (t: Theme) =>
   t.buttonShape === "pill" ? "rounded-full" : t.buttonShape === "square" ? "rounded-lg" : "rounded-2xl";
 
