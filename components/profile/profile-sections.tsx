@@ -208,7 +208,8 @@ function Contact({ profile, title }: { profile: PublicProfile; title: string }) 
 function Social({ profile, title }: { profile: PublicProfile; title: string }) {
   return (
     <Block title={title}>
-      <div className="flex flex-wrap gap-3">
+      {/* Equal-width grid: two per row, every button the same size. */}
+      <div className="grid grid-cols-2 gap-3">
         {profile.socialLinks.map((s) => (
           <ActionLink
             key={s.id}
@@ -216,11 +217,11 @@ function Social({ profile, title }: { profile: PublicProfile; title: string }) {
             kind="social"
             trackId={s.platform}
             aria-label={socialLabel(s.platform, s.label)}
-            className="flex h-12 items-center gap-2.5 rounded-full px-5 text-[0.9rem] font-semibold shadow-sm transition-transform active:scale-95"
+            className="flex h-12 w-full min-w-0 items-center justify-center gap-2.5 rounded-full px-4 text-[0.9rem] font-semibold shadow-sm transition-transform active:scale-95"
             style={socialButtonStyle(s.platform)}
           >
-            <SocialIcon platform={s.platform} className="h-[18px] w-[18px]" />
-            {socialLabel(s.platform, s.label)}
+            <SocialIcon platform={s.platform} className="h-[18px] w-[18px] shrink-0" />
+            <span className="truncate">{socialLabel(s.platform, s.label)}</span>
           </ActionLink>
         ))}
       </div>
