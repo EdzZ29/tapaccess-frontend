@@ -2,7 +2,6 @@
 
 import {
   ArrowLeft,
-  ExternalLink,
   Eye,
   Lock,
   MoreHorizontal,
@@ -20,12 +19,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { CardAvatar } from "@/components/admin/card-avatar";
-import { SiteUrlWarning } from "@/components/admin/site-url-warning";
+import { NfcSetupPanel } from "@/components/admin/nfc-setup";
 import { useCardActions } from "@/components/admin/card-actions";
 import { BarList, SERIES_LABEL, TimeSeriesChart, type SeriesKey } from "@/components/admin/charts";
 import { PlanBadge, PlanPicker } from "@/components/admin/plan";
 import { SlugField, useSlugCheck } from "@/components/admin/slug-field";
-import { CopyButton, QrCode, RangeFilter, Segmented, StatTile } from "@/components/admin/widgets";
+import { RangeFilter, Segmented, StatTile } from "@/components/admin/widgets";
 import { Button, LinkButton } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm";
 import { ErrorState, Skeleton } from "@/components/ui/feedback";
@@ -99,47 +98,7 @@ export default function CardDetailPage() {
       </header>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel className="lg:col-span-2">
-          <PanelHeader title="NFC setup" description="Write this URL to the card's NFC tag. It never changes, so profile edits never need a rewrite." />
-          <div className="flex flex-col gap-6 p-5 sm:flex-row">
-            <div className="min-w-0 flex-1 space-y-4">
-              <div className="rounded-lg border border-line bg-surface-2 p-3">
-                <p className="text-xs font-medium text-ink-3">Public URL</p>
-                <p className="mt-1 font-mono text-sm break-all text-ink">{url}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <CopyButton text={url} label="Copy URL" what="Public URL" />
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-8 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink shadow-sm hover:bg-surface-2"
-                  >
-                    <ExternalLink className="h-4 w-4" /> Open
-                  </a>
-                </div>
-              </div>
-              <SiteUrlWarning compact />
-              {card.status !== "active" && (
-                <p className="rounded-lg bg-warning-soft px-3 py-2 text-sm text-warning-ink">
-                  This card is {card.status}. Visitors currently see an “unavailable” page.
-                </p>
-              )}
-              <ol className="list-decimal space-y-1.5 pl-5 text-sm text-ink-2">
-                <li>
-                  Open <strong className="text-ink">NFC Tools</strong> → <em>Write</em> → <em>Add a record</em> → <em>URL / URI</em>.
-                </li>
-                <li>Paste the URL above, tap <em>Write</em>, then hold the card to the phone.</li>
-                <li>
-                  Optional: <em>Other</em> → <em>Lock tag</em> so nobody can overwrite it (this is irreversible).
-                </li>
-                <li>Tap the card to test it, then hand it to the client.</li>
-              </ol>
-            </div>
-            <div className="shrink-0 sm:w-44">
-              <QrCode value={url} fileName={card.slug} />
-            </div>
-          </div>
-        </Panel>
+        <NfcSetupPanel card={card} url={url} />
 
         <DetailsPanel card={card} onSaved={(c) => void mutate(c, { revalidate: false })} />
       </div>
