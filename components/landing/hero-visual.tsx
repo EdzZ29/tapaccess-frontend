@@ -1,14 +1,28 @@
-import { Clock, MapPin, Nfc, Phone, UserPlus } from "lucide-react";
+import { Clock, MapPin, Phone, UserPlus } from "lucide-react";
+import Image from "next/image";
 import { BrandMark } from "@/components/profile/icons";
 
 /**
- * The hero illustration, drawn in HTML/CSS: a TapAccess card being tapped
- * against a phone that shows a sample business profile. No images, so it is
- * crisp at any size and costs nothing to load.
+ * The hero illustration: the TapAccess card mockups (public/images) being
+ * tapped against a phone that shows a sample business profile, drawn in
+ * HTML/CSS so it stays crisp at any size.
  */
 export function HeroVisual() {
   return (
     <div className="relative mx-auto h-[580px] w-full max-w-[440px] sm:h-[650px]" aria-hidden>
+      {/* White card, tucked behind the phone */}
+      <div className="absolute top-[110px] -left-1 w-[170px] rotate-[7deg] sm:top-[130px] sm:w-[225px]">
+        <Image
+          src="/images/tap-white.png"
+          alt=""
+          width={1004}
+          height={638}
+          sizes="225px"
+          priority
+          className="rounded-[14px] shadow-[0_24px_50px_-24px_rgb(15_23_42/0.45)] ring-1 ring-black/5"
+        />
+      </div>
+
       {/* Phone */}
       <div className="absolute top-0 right-0 h-[520px] w-[262px] rounded-[2.6rem] border border-line-strong bg-[#0d0d10] p-2.5 shadow-[0_40px_80px_-30px_rgb(15_23_42/0.45)] sm:h-[580px] sm:w-[290px]">
         <div className="relative h-full overflow-hidden rounded-[2.1rem] bg-[#f6f3ee] text-[#16130f]">
@@ -17,17 +31,18 @@ export function HeroVisual() {
         </div>
       </div>
 
-      {/* NFC card */}
-      <div className="absolute bottom-2 left-0 w-[230px] animate-[float_6s_ease-in-out_infinite] sm:bottom-0 sm:w-[250px]">
-        <div className="relative aspect-[1.586] -rotate-[9deg] rounded-2xl bg-[#121214] p-5 text-white shadow-[0_30px_60px_-20px_rgb(15_23_42/0.6)] ring-1 ring-white/10">
-          <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand">
-              <Nfc className="h-4 w-4" />
-            </span>
-            TapAccess
-          </div>
-          <p className="absolute bottom-5 left-5 font-display text-lg leading-tight font-semibold">Luna Hair Studio</p>
-          <p className="absolute right-5 bottom-5 text-[0.65rem] tracking-[0.2em] text-white/50 uppercase">Tap me</p>
+      {/* Black card, being tapped */}
+      <div className="absolute bottom-2 left-0 w-[200px] animate-[float_6s_ease-in-out_infinite] sm:bottom-0 sm:w-[265px]">
+        <div className="relative -rotate-[9deg]">
+          <Image
+            src="/images/tap-black.png"
+            alt=""
+            width={1004}
+            height={638}
+            sizes="265px"
+            priority
+            className="rounded-[14px] shadow-[0_30px_60px_-20px_rgb(15_23_42/0.6)] ring-1 ring-white/10"
+          />
           {/* Tap pulse */}
           <span className="absolute -top-3 -right-3 flex h-14 w-14 items-center justify-center">
             <span className="absolute inset-0 animate-[tap-ripple_2.4s_ease-out_infinite] rounded-full border-2 border-brand" />

@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* dark: follows the system unless the visitor picked a theme (data-theme on <html>). */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme="dark"] *) {
+    @slot;
+  }
+}
+
 /*
  * Admin design tokens. Components use the semantic names (bg-surface,
  * text-ink-2, border-line...) so light and dark mode switch in one place.

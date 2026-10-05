@@ -15,6 +15,7 @@ import {
   Wand2,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand";
@@ -100,7 +101,7 @@ function Nav() {
     <header className="sticky top-0 z-30 border-b border-line/70 bg-canvas/80 backdrop-blur-xl">
       <Container className="flex h-16 items-center gap-6">
         <Link href="/" aria-label="TapAccess home">
-          <BrandLogo />
+          <BrandLogo priority />
         </Link>
         <nav aria-label="Main" className="hidden flex-1 justify-center gap-1 md:flex">
           {NAV.map((n) => (
@@ -299,8 +300,8 @@ function HowItWorks() {
 
 function Packages() {
   const plans = [
-    { key: "starter" as const, note: "For getting started fast", featured: false },
-    { key: "business" as const, note: "For the full brand experience", featured: true },
+    { key: "starter" as const, note: "For getting started fast", featured: false, card: "/images/tap-white.png" },
+    { key: "business" as const, note: "For the full brand experience", featured: true, card: "/images/tap-black.png" },
   ];
   return (
     <section id="packages" className="scroll-mt-20 py-24 sm:py-32">
@@ -316,7 +317,7 @@ function Packages() {
           intro="Both packages include the NFC card, a QR code, every theme and font, and one-tap Call & Save contact."
         />
         <div className="mx-auto mt-14 grid max-w-4xl gap-5 md:grid-cols-2">
-          {plans.map(({ key, note, featured }) => {
+          {plans.map(({ key, note, featured, card }) => {
             const plan = PLAN_META[key];
             return (
               <div
@@ -326,6 +327,14 @@ function Packages() {
                   featured ? "border-transparent bg-ink text-canvas" : "border-line bg-surface",
                 )}
               >
+                <Image
+                  src={card}
+                  alt=""
+                  width={1004}
+                  height={638}
+                  sizes="(min-width: 768px) 380px, 90vw"
+                  className={cn("mb-7 w-full rounded-2xl", featured ? "ring-1 ring-white/15" : "ring-1 ring-black/5 shadow-[0_18px_40px_-24px_rgb(15_23_42/0.35)]")}
+                />
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-display text-2xl font-bold tracking-tight">{plan.label}</h3>
                   {featured && <span className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">Most complete</span>}
