@@ -27,7 +27,9 @@ export const getPublicProfile = cache(async (slug: string): Promise<ProfileResul
     res = await fetch(`${API_URL}/api/public/cards/${slug}`, {
       headers,
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
+      // Generous: a sleeping Render free instance can take ~50 s to wake up;
+      // meanwhile the visitor sees the loading skeleton.
+      signal: AbortSignal.timeout(55_000),
     });
   } catch {
     return { kind: "error", status: 503 };

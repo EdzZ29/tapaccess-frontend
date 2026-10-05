@@ -17,11 +17,45 @@ import { cn } from "@/lib/utils";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif";
 
+/** Uploads above this are shrunk in the browser first (hosting caps requests at ~4.5 MB). */
+const SHRINK_ABOVE_BYTES = 3.5 * 1024 * 1024;
+const MAX_EDGE = 2560;
+
+/**
+ * Resizes a large photo in the browser before upload. The API re-encodes
+ * every image to ≤1920 px WebP anyway, so nothing visible is lost — this only
+ * keeps the request small enough for the hosting platform. Returns the
+ * original file when it's already small or can't be decoded here.
+ */
+async function shrinkIfLarge(file: File): Promise<Blob> {
+  if (file.size <= SHRINK_ABOVE_BYTES || file.type === "image/gif" || typeof createImageBitmap !== "function") return file;
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const encode = (type: string, quality: number) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+    // WebP keeps transparency (logos); Safari can't encode it, so fall back to JPEG.
+    let blob = await encode("image/webp", 0.9);
+    if (!blob || blob.type !== "image/webp") blob = await encode("image/jpeg", 0.9);
+    return blob && blob.size < file.size ? blob : file;
+  } catch {
+    return file;
+  }
+}
+
 export async function uploadImage(file: File, kind: MediaKind, cardId: string): Promise<MediaAsset> {
   if (!ACCEPT.split(",").includes(file.type)) throw new Error("Use a JPEG, PNG, WebP, GIF or AVIF image.");
-  if (file.size > LIMITS.uploadMb * 1024 * 1024) throw new Error(`Images must be ${LIMITS.uploadMb} MB or smaller.`);
+  if (file.size > 25 * 1024 * 1024) throw new Error("This image is too large (over 25 MB).");
+  const upload = await shrinkIfLarge(file);
+  if (upload.size > LIMITS.uploadMb * 1024 * 1024 || upload.size > 4.4 * 1024 * 1024) {
+    throw new Error("This image is still too large after resizing. Please choose a smaller photo.");
+  }
   const form = new FormData();
-  form.append("file", file);
+  form.append("file", upload, upload === file ? file.name : file.name.replace(/\.[^.]+$/, "") + (upload.type === "image/webp" ? ".webp" : ".jpg"));
   form.append("kind", kind);
   form.append("cardId", cardId);
   return api<MediaAsset>("/admin/media", { method: "POST", body: form });
@@ -102,7 +136,7 @@ export function ImagePicker({
           )}
         </div>
       </div>
-      <p className="text-xs text-ink-3">{hint ?? `JPEG, PNG, WebP or GIF up to ${LIMITS.uploadMb} MB. Converted to WebP and resized automatically.`}</p>
+      <p className="text-xs text-ink-3">{hint ?? `JPEG, PNG, WebP or GIF. Large photos are resized automatically.`}</p>
       <input ref={input} type="file" accept={ACCEPT} className="hidden" onChange={(e) => void onFile(e.target.files?.[0])} />
       {library && (
         <MediaLibrary

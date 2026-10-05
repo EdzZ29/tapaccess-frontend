@@ -6,6 +6,9 @@ import { CardUnavailable } from "@/components/profile/status-pages";
 import { getPublicProfile } from "@/lib/server-api";
 import { absoluteUrl, cardUrl } from "@/lib/utils";
 
+// Room for a sleeping API server to wake up (Render free plan) before the page gives up.
+export const maxDuration = 60;
+
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME ?? "tapaccess_session";
 
 export async function generateMetadata({ params }: PageProps<"/c/[slug]">): Promise<Metadata> {

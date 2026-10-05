@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     upstream = await fetch(`${API_URL}/api/public/cards/${slug}/vcard`, {
       headers: upstreamHeaders(request),
       cache: "no-store",
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(45_000),
     });
   } catch {
     return Response.redirect(profilePage, 303);
@@ -34,3 +34,5 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     },
   });
 }
+
+export const maxDuration = 60;

@@ -71,14 +71,13 @@ const nextConfig: NextConfig = {
   // testing real NFC taps. Only affects `next dev`.
   allowedDevOrigins: [SITE_HOST],
   async rewrites() {
-    // `fallback`: only applies when no page or route handler matches, so the
-    // route handlers in app/api/public/** (vCard, visits, clicks) take
-    // precedence and everything else under /api goes to the backend.
+    // /api/* is served by route handlers (app/api/**), which check the request
+    // came from this site and forward it to the backend. Only uploaded files
+    // (local storage driver) are proxied directly.
     return {
       beforeFiles: [],
       afterFiles: [],
       fallback: [
-        { source: "/api/:path*", destination: `${API_URL}/api/:path*` },
         { source: "/uploads/:path*", destination: `${API_URL}/uploads/:path*` },
       ],
     };
