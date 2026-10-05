@@ -7,6 +7,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import useSWR, { SWRConfig } from "swr";
 import { SiteUrlWarning } from "@/components/admin/site-url-warning";
 import { BrandLogo } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LinkButton } from "@/components/ui/button";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { Skeleton } from "@/components/ui/feedback";
@@ -99,9 +100,12 @@ function Shell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col gap-6 p-4">
-      <Link href="/admin" className="px-2 pt-1">
-        <BrandLogo />
-      </Link>
+      <div className="flex items-center justify-between gap-2 px-2 pt-1">
+        <Link href="/admin">
+          <BrandLogo />
+        </Link>
+        <ThemeToggle className="h-8 w-8" />
+      </div>
       <LinkButton href="/admin/cards/new" variant="primary" icon={<Plus className="h-4 w-4" />} className="w-full">
         New card
       </LinkButton>
@@ -124,9 +128,12 @@ function Shell({ children }: { children: ReactNode }) {
             <Link href="/admin">
               <BrandLogo />
             </Link>
-            <button onClick={() => setDrawer(true)} className="rounded-md p-2 text-ink-2 hover:bg-surface-2" aria-label="Open menu">
-              <MenuIcon className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <ThemeToggle className="h-8 w-8" />
+              <button onClick={() => setDrawer(true)} className="rounded-md p-2 text-ink-2 hover:bg-surface-2" aria-label="Open menu">
+                <MenuIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           {drawer && (
             <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">

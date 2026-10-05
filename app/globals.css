@@ -33,6 +33,7 @@
   --chart-axis: #898781;
 }
 
+/* Dark tokens: follow the system unless the visitor picked a theme (theme-toggle). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
@@ -62,6 +63,33 @@
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0b0d12;
+  --surface: #12151c;
+  --surface-2: #1a1e27;
+  --line: #252a35;
+  --line-strong: #353b49;
+  --ink: #f1f5f9;
+  --ink-2: #a7b0c0;
+  --ink-3: #737e91;
+  --brand: #6366f1;
+  --brand-hover: #818cf8;
+  --brand-soft: #1e1b4b;
+  --brand-ink: #c7d2fe;
+  --danger: #f87171;
+  --danger-soft: #2a1215;
+  --success: #0ca30c;
+  --success-ink: #4ade80;
+  --success-soft: #0c2414;
+  --warning: #fab219;
+  --warning-ink: #fcd34d;
+  --warning-soft: #2a1f06;
+  --chart-1: #3987e5;
+  --chart-grid: #2c2c2a;
+  --chart-axis: #898781;
+}
+
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -87,6 +115,9 @@
   --color-chart-grid: var(--chart-grid);
   --color-chart-axis: var(--chart-axis);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Landing page only: the variables are defined on its wrapper. */
+  --font-display: var(--font-landing-display), ui-sans-serif, system-ui, sans-serif;
+  --font-accent: var(--font-landing-accent), Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -118,5 +149,27 @@ dialog::backdrop {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Landing page: the NFC "tap" pulse and a slow float for the hero card. */
+@keyframes tap-ripple {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
   }
 }
