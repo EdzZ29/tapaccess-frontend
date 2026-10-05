@@ -1,12 +1,49 @@
 import type { NextConfig } from "next";
 
+/** "cards.example.com/" → "https://cards.example.com"; null if it still isn't a valid URL. */
+function normalizeUrl(value: string | undefined): string | null {
+  const v = value?.trim().replace(/\/+$/, "");
+  if (!v) return null;
+  const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+  try {
+    return new URL(withScheme).origin;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Environment check ──────────────────────────────────────────────────────
+// On Vercel production builds every required variable must be present and
+// valid; all problems are reported together in one readable message instead
+// of a cryptic "Failed to load next.config.ts".
+const onVercelProduction = process.env.VERCEL_ENV === "production";
+const apiUrl = normalizeUrl(process.env.API_URL);
+const siteUrl = normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL);
+if (onVercelProduction) {
+  const problems: string[] = [];
+  if (!apiUrl) problems.push("API_URL — your Render API address, e.g. https://tapaccess-api.onrender.com");
+  if (!siteUrl) problems.push("NEXT_PUBLIC_SITE_URL — this site's address, e.g. https://tapaccess-frontend.vercel.app");
+  if (!process.env.INTERNAL_API_KEY) problems.push("INTERNAL_API_KEY — the same secret value you set on Render");
+  if (problems.length) {
+    throw new Error(
+      [
+        "",
+        "TapAccess: missing or invalid environment variables for this production deployment:",
+        ...problems.map((p) => `  • ${p}`),
+        "Add them in Vercel → Project → Settings → Environment Variables (tick “Production”), then Redeploy.",
+        "",
+      ].join("\n"),
+    );
+  }
+}
+
 /**
  * The browser only ever talks to this origin. `/api/*` and `/uploads/*` are
  * proxied to the NestJS backend, so the admin session cookie is first-party
  * (no third-party-cookie problems in Safari) and the backend URL never has
  * to be exposed for admin traffic.
  */
-const API_URL = (process.env.API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const API_URL = apiUrl ?? "http://localhost:4000";
 
 /** Sent on every response. The Content-Security-Policy is added per request in proxy.ts. */
 const securityHeaders = [
@@ -23,13 +60,7 @@ const securityHeaders = [
   },
 ];
 
-// Fail the production deploy loudly instead of shipping a site whose visitors
-// all share one rate limit (see lib/upstream.ts).
-if (process.env.VERCEL_ENV === "production" && !process.env.INTERNAL_API_KEY) {
-  throw new Error("INTERNAL_API_KEY must be set for production builds (same value as on the API).");
-}
-
-const SITE_HOST = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001").hostname;
+const SITE_HOST = new URL(siteUrl ?? "http://localhost:3001").hostname;
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,

@@ -1,8 +1,9 @@
 import "server-only";
 import { cache } from "react";
+import { envUrl } from "./env-url";
 import type { PublicProfile } from "./types";
 
-const API_URL = (process.env.API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const API_URL = envUrl(process.env.API_URL, "http://localhost:4000");
 
 export type ProfileResult =
   | { kind: "ok"; profile: PublicProfile }

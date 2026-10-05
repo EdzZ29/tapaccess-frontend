@@ -1,8 +1,10 @@
+import { envUrl } from "./env-url";
+
 export function cn(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001").replace(/\/$/, "");
+export const SITE_URL = envUrl(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3001");
 
 /** The permanent URL written to a card's NFC tag. */
 export const cardUrl = (slug: string) => `${SITE_URL}/c/${slug}`;
