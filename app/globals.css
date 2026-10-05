@@ -1,26 +1,122 @@
 @import "tailwindcss";
 
+/*
+ * Admin design tokens. Components use the semantic names (bg-surface,
+ * text-ink-2, border-line...) so light and dark mode switch in one place.
+ * Public profile pages do not use these; each card brings its own theme.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light;
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f2f4f7;
+  --line: #e4e7ec;
+  --line-strong: #cfd4dc;
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #7c8697;
+  --brand: #4f46e5;
+  --brand-hover: #4338ca;
+  --brand-soft: #eef2ff;
+  --brand-ink: #3730a3;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --success: #0ca30c;
+  --success-ink: #006300;
+  --success-soft: #ecfdf3;
+  --warning: #fab219;
+  --warning-ink: #8a5a00;
+  --warning-soft: #fffaeb;
+  /* Charts (dataviz reference palette, slot 1) */
+  --chart-1: #2a78d6;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #898781;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --canvas: #0b0d12;
+    --surface: #12151c;
+    --surface-2: #1a1e27;
+    --line: #252a35;
+    --line-strong: #353b49;
+    --ink: #f1f5f9;
+    --ink-2: #a7b0c0;
+    --ink-3: #737e91;
+    --brand: #6366f1;
+    --brand-hover: #818cf8;
+    --brand-soft: #1e1b4b;
+    --brand-ink: #c7d2fe;
+    --danger: #f87171;
+    --danger-soft: #2a1215;
+    --success: #0ca30c;
+    --success-ink: #4ade80;
+    --success-soft: #0c2414;
+    --warning: #fab219;
+    --warning-ink: #fcd34d;
+    --warning-soft: #2a1f06;
+    --chart-1: #3987e5;
+    --chart-grid: #2c2c2a;
+    --chart-axis: #898781;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-ink: var(--success-ink);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-ink: var(--warning-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-chart-1: var(--chart-1);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-axis: var(--chart-axis);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere, never on mouse click. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+dialog::backdrop {
+  background: rgb(15 23 42 / 0.45);
+  backdrop-filter: blur(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
