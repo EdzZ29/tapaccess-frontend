@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import useSWR, { SWRConfig } from "swr";
+import { SiteUrlWarning } from "@/components/admin/site-url-warning";
 import { BrandLogo } from "@/components/brand";
 import { LinkButton } from "@/components/ui/button";
 import { ConfirmProvider } from "@/components/ui/confirm";
@@ -116,6 +117,7 @@ function Shell({ children }: { children: ReactNode }) {
       ) : (
         <div className="min-h-dvh lg:pl-64">
           <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-line bg-surface lg:block">{sidebar}</aside>
+          <SiteUrlWarning />
 
           {/* Mobile top bar + drawer */}
           <div className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line bg-surface/90 px-4 backdrop-blur lg:hidden">

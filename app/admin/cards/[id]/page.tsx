@@ -20,6 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { CardAvatar } from "@/components/admin/card-avatar";
+import { SiteUrlWarning } from "@/components/admin/site-url-warning";
 import { useCardActions } from "@/components/admin/card-actions";
 import { BarList, SERIES_LABEL, TimeSeriesChart, type SeriesKey } from "@/components/admin/charts";
 import { PlanBadge, PlanPicker } from "@/components/admin/plan";
@@ -117,6 +118,7 @@ export default function CardDetailPage() {
                   </a>
                 </div>
               </div>
+              <SiteUrlWarning compact />
               {card.status !== "active" && (
                 <p className="rounded-lg bg-warning-soft px-3 py-2 text-sm text-warning-ink">
                   This card is {card.status}. Visitors currently see an “unavailable” page.
