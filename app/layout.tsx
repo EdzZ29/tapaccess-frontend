@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Toaster } from "sonner";
 import { fontVariables } from "@/lib/fonts";
+import { VercelAnalytics } from "@/components/vercel-analytics";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { SITE_URL } from "@/lib/utils";
 import "./globals.css";
@@ -34,6 +35,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         {children}
         <Toaster position="top-center" richColors closeButton />
+        <VercelAnalytics />
       </body>
     </html>
   );

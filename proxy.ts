@@ -72,7 +72,7 @@ export const config = {
   matcher: [
     {
       // Pages only: API routes, static assets and uploads don't need a CSP.
-      source: "/((?!api|uploads|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|brand/|images/|robots.txt).*)",
+      source: "/((?!api|uploads|_vercel|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|brand/|images/|robots.txt).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
