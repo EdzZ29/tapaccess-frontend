@@ -14,7 +14,7 @@ const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME ?? "tapaccess_session";
 export async function generateMetadata({ params }: PageProps<"/c/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const result = await getPublicProfile(slug);
-  if (result.kind !== "ok") return { title: "TapAccess", robots: { index: false, follow: false } };
+  if (result.kind !== "ok") return { title: { absolute: "TapAccess" }, robots: { index: false, follow: false } };
 
   const p = result.profile;
   const description = p.tagline ?? p.description?.slice(0, 160) ?? `${p.businessName} on TapAccess`;
