@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import {
   forwardRef,
   useId,
@@ -24,14 +25,22 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
   },
 );
 
+/**
+ * Native select with our own chevron: the browser's arrow is drawn inside
+ * the text area on some platforms, which clipped labels on phones.
+ * `className` sizes the wrapper (width, flex); the select fills it.
+ */
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select(
   { className, children, ...props },
   ref,
 ) {
   return (
-    <select ref={ref} className={cn(control, "h-10 cursor-pointer pr-8", className)} {...props}>
-      {children}
-    </select>
+    <span className={cn("relative block", className)}>
+      <select ref={ref} className={cn(control, "h-10 cursor-pointer appearance-none truncate pr-9")} {...props}>
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden />
+    </span>
   );
 });
 

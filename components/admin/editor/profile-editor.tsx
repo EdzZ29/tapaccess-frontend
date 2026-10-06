@@ -157,11 +157,15 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
 
       <div className="flex min-h-0 flex-1">
         <div className={cn("min-w-0 flex-1 flex-col lg:flex", mobileView === "edit" ? "flex" : "hidden")}>
-          <nav aria-label="Editor sections" className="flex shrink-0 gap-1 overflow-x-auto border-b border-line bg-surface px-3">
+          <nav aria-label="Editor sections" className="flex shrink-0 gap-1 overflow-x-auto overscroll-x-contain border-b border-line bg-surface px-3 [scrollbar-width:none]">
             {TABS.map((t) => (
               <button
                 key={t.id}
-                onClick={() => setTab(t.id)}
+                onClick={(e) => {
+                  setTab(t.id);
+                  // On phones the tab row scrolls; bring a half-hidden tab fully into view.
+                  e.currentTarget.scrollIntoView({ inline: "nearest", block: "nearest", behavior: "smooth" });
+                }}
                 aria-current={tab === t.id ? "page" : undefined}
                 className={cn(
                   "shrink-0 border-b-2 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors",

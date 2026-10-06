@@ -65,18 +65,21 @@ export default function CardDetailPage() {
         <ArrowLeft className="h-4 w-4" /> Cards
       </Link>
 
-      <header className="mb-6 flex flex-wrap items-center gap-4">
-        <CardAvatar card={card} size="lg" />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-2xl font-semibold tracking-tight text-ink">{card.businessName}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-2">
-            <StatusBadge status={card.status} />
-            <PlanBadge plan={card.plan} />
-            <span className="font-mono text-xs">{card.cardCode}</span>
-            {card.category && <span>· {card.category}</span>}
+      {/* Phones: name on its own row, actions full width underneath. */}
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 items-center gap-4 sm:flex-1">
+          <CardAvatar card={card} size="lg" />
+          <div className="min-w-0 flex-1">
+            <h1 className="line-clamp-2 text-xl font-semibold tracking-tight break-words text-ink sm:line-clamp-1 sm:text-2xl">{card.businessName}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-2">
+              <StatusBadge status={card.status} />
+              <PlanBadge plan={card.plan} />
+              <span className="font-mono text-xs">{card.cardCode}</span>
+              {card.category && <span>· {card.category}</span>}
+            </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 [&>*:not(:last-child)]:flex-1 sm:[&>*:not(:last-child)]:flex-none">
           {card.status === "inactive" && (
             <Button icon={<Power className="h-4 w-4" />} onClick={() => actions.setStatus(card, "active")}>
               Activate

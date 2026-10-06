@@ -119,7 +119,7 @@ function Shell({ children }: { children: ReactNode }) {
       {fullscreen ? (
         children
       ) : (
-        <div className="min-h-dvh lg:pl-64">
+        <div className="min-h-dvh overflow-x-clip lg:pl-64">
           <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-line bg-surface lg:block">{sidebar}</aside>
           <SiteUrlWarning />
 

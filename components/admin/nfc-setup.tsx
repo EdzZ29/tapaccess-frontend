@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils";
 type Mode = "link" | "contact" | "call";
 
 const MODES: { value: Mode; label: string }[] = [
-  { value: "link", label: "Profile page" },
-  { value: "contact", label: "Save contact" },
-  { value: "call", label: "Phone call" },
+  { value: "link", label: "Profile" },
+  { value: "contact", label: "Contact" },
+  { value: "call", label: "Call" },
 ];
 
 const DESCRIPTIONS: Record<Mode, string> = {
@@ -98,7 +98,7 @@ function ContactSetup({ card, url }: { card: CardDetail; url: string }) {
       <Tradeoffs>
         <li>
           <strong className="text-ink">Android only.</strong> iPhones ignore contact records when a card is tapped — they only open links and
-          phone numbers. iPhone owners get nothing, so use <em>Profile page</em> with <em>Save contact</em> if the client’s customers use iPhones.
+          phone numbers. iPhone owners get nothing, so use <em>Profile</em> (set to open on Save contact) if the client’s customers use iPhones.
         </li>
         <li>No profile page, and visits and clicks aren’t counted.</li>
         <li>The details are copied onto the chip. After editing the profile, write the card again — so don’t lock it.</li>

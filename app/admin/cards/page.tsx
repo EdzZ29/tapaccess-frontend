@@ -97,12 +97,12 @@ export default function CardsPage() {
           ]}
         />
         <div className="flex gap-2 lg:ml-auto">
-          <Select value={plan} onChange={(e) => setPlan(e.target.value as "" | CardPlan)} aria-label="Package" className="min-w-0 lg:w-40">
+          <Select value={plan} onChange={(e) => setPlan(e.target.value as "" | CardPlan)} aria-label="Package" className="min-w-0 flex-1 lg:w-40 lg:flex-none">
             <option value="">All packages</option>
             <option value="business">Business</option>
             <option value="starter">Starter</option>
           </Select>
-          <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by" className="min-w-0 lg:w-44">
+          <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by" className="min-w-0 flex-1 lg:w-44 lg:flex-none">
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}

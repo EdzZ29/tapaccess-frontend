@@ -115,7 +115,10 @@ export function TimeSeriesChart({
   const ax = active !== null ? geo.x(active) : 0;
 
   return (
-    <div ref={ref} className={cn("relative transition-opacity", dimmed && "opacity-60")}>
+    // The SVG is taken out of the flow so it never props its container open:
+    // the container's width comes from the layout alone, and the chart
+    // redraws to fit when the screen narrows (rotation, window resize).
+    <div ref={ref} className={cn("relative w-full min-w-0 transition-opacity", dimmed && "opacity-60")} style={{ height: H }}>
       {width > 0 && data.length > 0 && (
         <svg
           width={width}
@@ -123,7 +126,7 @@ export function TimeSeriesChart({
           role="img"
           aria-label={`${label} per day, ${shortDate(data[0].date)} to ${shortDate(data[last].date)}. Use arrow keys to read values, or switch to the table view.`}
           tabIndex={0}
-          className="block touch-pan-y outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-md"
+          className="absolute inset-0 block touch-pan-y rounded-md outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           onPointerMove={(e) => pick(e.clientX, e.currentTarget.getBoundingClientRect())}
           onPointerDown={(e) => pick(e.clientX, e.currentTarget.getBoundingClientRect())}
           onPointerLeave={() => setActive(null)}

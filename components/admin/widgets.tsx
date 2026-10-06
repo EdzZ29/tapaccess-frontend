@@ -47,7 +47,7 @@ export const RANGES = [
 /** Date-range presets. Sits in one row above everything it scopes. */
 export function RangeFilter({ value, onChange }: { value: number; onChange: (days: number) => void }) {
   return (
-    <div role="radiogroup" aria-label="Date range" className="inline-flex rounded-lg border border-line bg-surface p-0.5 shadow-xs">
+    <div role="radiogroup" aria-label="Date range" className="flex w-full rounded-lg border border-line bg-surface p-0.5 shadow-xs sm:inline-flex sm:w-auto">
       {RANGES.map((r) => (
         <button
           key={r.days}
@@ -55,7 +55,7 @@ export function RangeFilter({ value, onChange }: { value: number; onChange: (day
           aria-checked={value === r.days}
           onClick={() => onChange(r.days)}
           className={cn(
-            "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "flex-auto rounded-md px-3 py-1.5 text-center text-sm font-medium whitespace-nowrap transition-colors sm:flex-none",
             value === r.days ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:text-ink",
           )}
         >
@@ -78,7 +78,7 @@ export function Segmented<T extends string>({
   label: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5 shadow-xs">
+    <div role="radiogroup" aria-label={label} className="flex w-full flex-wrap rounded-lg border border-line bg-surface p-0.5 shadow-xs sm:inline-flex sm:w-auto">
       {options.map((o) => (
         <button
           key={o.value}
@@ -86,7 +86,7 @@ export function Segmented<T extends string>({
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            "flex-auto rounded-md px-3 py-1.5 text-center text-sm font-medium whitespace-nowrap transition-colors sm:flex-none",
             value === o.value ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:text-ink",
           )}
         >
