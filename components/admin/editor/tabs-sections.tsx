@@ -130,12 +130,18 @@ function ItemsEditor({ section, cardId, onChange }: { section: SectionRow; cardI
     if (!files?.length) return;
     setUploading(true);
     const added: Keyed<SectionItem>[] = [];
-    for (const file of Array.from(files).slice(0, LIMITS.itemsPerSection - items.length)) {
+    const room = LIMITS.itemsPerSection - items.length;
+    if (files.length > room) {
+      toast.warning(`Only ${room} more photo${room === 1 ? "" : "s"} fit`, {
+        description: `A gallery holds up to ${LIMITS.itemsPerSection} photos, so ${files.length - room} of the ${files.length} selected were skipped.`,
+      });
+    }
+    for (const file of Array.from(files).slice(0, room)) {
       try {
         const asset = await uploadImage(file, "gallery", cardId);
         added.push({ ...emptyItem(), title: file.name.replace(/\.[^.]+$/, "").slice(0, 160) || "Photo", imageUrl: asset.url });
       } catch (err) {
-        toast.error(`${file.name}: ${(err as Error).message}`);
+        toast.error(`Couldn't add "${file.name}"`, { description: (err as Error).message, duration: 10_000 });
       }
     }
     if (added.length) {

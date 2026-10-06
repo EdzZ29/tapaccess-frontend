@@ -3,12 +3,17 @@ import { NextResponse, type NextRequest } from "next/server";
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME ?? "tapaccess_session";
 const isDev = process.env.NODE_ENV === "development";
 
-/** Where uploaded images live besides this site, e.g. https://<project>.supabase.co */
+/**
+ * Where uploaded images live besides this site. STORAGE_ORIGIN pins it to one
+ * project (e.g. https://<project>.supabase.co); without it any Supabase
+ * project host is allowed, so uploads still show if the variable is missing.
+ * Images can't run code, so this only widens where pictures may load from.
+ */
 const STORAGE_ORIGIN = (() => {
   try {
-    return process.env.STORAGE_ORIGIN ? new URL(process.env.STORAGE_ORIGIN).origin : "";
+    return process.env.STORAGE_ORIGIN ? new URL(process.env.STORAGE_ORIGIN).origin : "https://*.supabase.co";
   } catch {
-    return "";
+    return "https://*.supabase.co";
   }
 })();
 
@@ -27,7 +32,7 @@ function contentSecurityPolicy(nonce: string): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' data: blob:${STORAGE_ORIGIN ? ` ${STORAGE_ORIGIN}` : ""}`,
+    `img-src 'self' data: blob: ${STORAGE_ORIGIN}`,
     "font-src 'self'",
     `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
     "media-src 'self'",

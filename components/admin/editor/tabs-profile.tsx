@@ -49,7 +49,7 @@ export function ProfileTab({ value: p, onChange, cardId, plan, onUpgrade }: TabP
       <EditorCard title="Logo & cover" description="Shown at the top of the profile.">
         {images ? (
           <>
-            <ImagePicker label="Logo" value={p.logoUrl} onChange={(v) => onChange({ logoUrl: v })} kind="logo" cardId={cardId} hint="Square works best, at least 400 × 400 px." />
+            <ImagePicker label="Logo" value={p.logoUrl} onChange={(v) => onChange({ logoUrl: v })} kind="logo" cardId={cardId} />
             <ImagePicker
               label="Cover image"
               value={p.coverUrl}
@@ -57,7 +57,7 @@ export function ProfileTab({ value: p, onChange, cardId, plan, onUpgrade }: TabP
               kind="cover"
               cardId={cardId}
               aspect="wide"
-              hint="Landscape, at least 1200 × 600 px. Hidden with the Minimal layout."
+              hint="Hidden with the Minimal layout."
             />
           </>
         ) : (
