@@ -143,6 +143,8 @@ export interface CardSummary {
   slugLocked: boolean;
   firstActivatedAt: string | null;
   archivedAt: string | null;
+  /** Business cards: the owner may edit their own buttons and social links. */
+  ownerAccess: { enabled: boolean; active: boolean; codeSetAt: string | null; lastEditAt: string | null };
   createdAt: string;
   updatedAt: string;
   visitCount: number;
@@ -185,6 +187,8 @@ export interface PublicProfile {
   theme: Theme;
   /** Already falls back to "profile" (API side) when the card can't do it. */
   tapAction: TapAction;
+  /** The card's owner can sign in to edit their links (shows the Edit button). */
+  ownerEditing?: boolean;
   sections: {
     type: SectionType;
     title: string | null;
@@ -270,4 +274,14 @@ export interface AdminUser {
   name: string;
   role: "super_admin";
   lastLoginAt: string | null;
+}
+
+/** What a card owner sees and edits in their self-service editor. */
+export interface OwnerCard {
+  slug: string;
+  businessName: string;
+  plan: CardPlan;
+  lastEditAt: string | null;
+  buttons: CardButton[];
+  socialLinks: SocialLink[];
 }

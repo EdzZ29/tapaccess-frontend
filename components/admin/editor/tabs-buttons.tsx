@@ -13,7 +13,7 @@ import { PLAN_FEATURES, socialAllowed } from "@/lib/plans";
 import type { CardPlan, SocialPlatform } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { EditorCard, RowControls, TextInput } from "./controls";
-import { move, newKey, rowKey, type EditorDoc } from "./model";
+import { move, newKey, rowKey, type LinksDoc } from "./model";
 import { UpgradeButton } from "./tabs-profile";
 
 export function ButtonsTab({
@@ -22,14 +22,14 @@ export function ButtonsTab({
   plan,
   onUpgrade,
 }: {
-  doc: EditorDoc;
-  setDoc: (fn: (d: EditorDoc) => EditorDoc) => void;
+  doc: LinksDoc;
+  setDoc: (fn: (d: LinksDoc) => LinksDoc) => void;
   plan: CardPlan;
   onUpgrade: () => void;
 }) {
   const [iconFor, setIconFor] = useState<number | null>(null);
-  const setButtons = (fn: (b: EditorDoc["buttons"]) => EditorDoc["buttons"]) => setDoc((d) => ({ ...d, buttons: fn(d.buttons) }));
-  const setSocial = (fn: (b: EditorDoc["socialLinks"]) => EditorDoc["socialLinks"]) => setDoc((d) => ({ ...d, socialLinks: fn(d.socialLinks) }));
+  const setButtons = (fn: (b: LinksDoc["buttons"]) => LinksDoc["buttons"]) => setDoc((d) => ({ ...d, buttons: fn(d.buttons) }));
+  const setSocial = (fn: (b: LinksDoc["socialLinks"]) => LinksDoc["socialLinks"]) => setDoc((d) => ({ ...d, socialLinks: fn(d.socialLinks) }));
   const allowedPlatforms = SOCIAL_PLATFORMS.filter((p) => socialAllowed(plan, p.value));
   const usedPlatforms = new Set(doc.socialLinks.map((s) => s.platform));
 

@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import { CardAvatar } from "@/components/admin/card-avatar";
 import { NfcSetupPanel } from "@/components/admin/nfc-setup";
+import { OwnerAccessPanel } from "@/components/admin/owner-access";
 import { useCardActions } from "@/components/admin/card-actions";
 import { BarList, SERIES_LABEL, TimeSeriesChart, type SeriesKey } from "@/components/admin/charts";
 import { PlanBadge, PlanPicker } from "@/components/admin/plan";
@@ -105,6 +106,8 @@ export default function CardDetailPage() {
 
         <DetailsPanel card={card} onSaved={(c) => void mutate(c, { revalidate: false })} />
       </div>
+
+      <OwnerAccessPanel card={card} onChange={(c) => void mutate(c, { revalidate: false })} />
 
       <AnalyticsSection card={card} />
       {actions.dialogs}

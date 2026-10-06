@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- images are pre-sized WebP from our upload pipeline; next/image would need per-host config for every storage provider */
 
-import { Mail, Phone, Share2, UserPlus } from "lucide-react";
+import { Mail, Pencil, Phone, Share2, UserPlus } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { toast } from "sonner";
 import type { PublicProfile, SocialPlatform } from "@/lib/types";
@@ -46,11 +46,24 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
             ))}
           </div>
           <footer className="px-6 pt-6 pb-8 text-center text-xs" style={{ color: "var(--p-muted)" }}>
-            Powered by <span className="font-semibold">TapAccess</span>
+            {profile.ownerEditing && (
+              // For the card's owner (Business): signs in with their access code.
+              <a
+                href={`/c/${profile.slug}/edit`}
+                className="mb-5 inline-flex h-9 items-center gap-2 rounded-full border px-4 text-[0.8rem] font-semibold transition-transform active:scale-[0.98]"
+                style={{ borderColor: "var(--p-border)", color: "var(--p-text)", background: "var(--p-surface)" }}
+              >
+                <Pencil className="h-3.5 w-3.5" aria-hidden />
+                Edit my links
+              </a>
+            )}
+            <span className="block">
+              Powered by <span className="font-semibold">TapAccess</span>
             {" · "}
-            <a href="/privacy" className="underline-offset-2 hover:underline">
-              Privacy
-            </a>
+              <a href="/privacy" className="underline-offset-2 hover:underline">
+                Privacy
+              </a>
+            </span>
           </footer>
           <ActionBar profile={profile} />
         </div>

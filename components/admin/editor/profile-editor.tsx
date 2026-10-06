@@ -53,7 +53,10 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
     }
     setSaving(true);
     try {
-      const updated = await api<CardDetail>(`/admin/cards/${card.id}/profile`, { method: "PUT", body: toPayload(doc) });
+      // The owner edit this editor has seen: the API refuses the save if the
+      // card's owner changed their links since, instead of overwriting them.
+      const baseOwnerEditAt = card.ownerAccess ? card.ownerAccess.lastEditAt : undefined;
+      const updated = await api<CardDetail>(`/admin/cards/${card.id}/profile`, { method: "PUT", body: { ...toPayload(doc), baseOwnerEditAt } });
       const next = docFromCard(updated);
       setCard(updated);
       setDoc(next);
@@ -61,11 +64,19 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
       onCardChange(updated);
       toast.success(updated.status === "active" ? "Saved — the live card is updated" : "Saved");
     } catch (err) {
-      toast.error(err instanceof ApiError ? humanizeApiError(err.message) : errorMessage(err));
+      if (err instanceof ApiError && err.code === "OWNER_EDITED") {
+        toast.error("The owner changed their links", {
+          description: err.message,
+          duration: 15_000,
+          action: { label: "Reload", onClick: () => window.location.reload() },
+        });
+      } else {
+        toast.error(err instanceof ApiError ? humanizeApiError(err.message) : errorMessage(err));
+      }
     } finally {
       setSaving(false);
     }
-  }, [card.id, doc, onCardChange]);
+  }, [card.id, card.ownerAccess, doc, onCardChange]);
 
   // Ctrl/Cmd + S saves; leaving with unsaved changes asks first.
   useEffect(() => {
@@ -180,7 +191,7 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
             <div className="mx-auto max-w-3xl p-4 sm:p-6">
               {tab === "profile" && <ProfileTab value={doc.profile} onChange={setProfile} {...tabProps} />}
               {tab === "contact" && <ContactTab value={doc.profile} onChange={setProfile} {...tabProps} />}
-              {tab === "buttons" && <ButtonsTab doc={doc} setDoc={setDoc} plan={card.plan} onUpgrade={tabProps.onUpgrade} />}
+              {tab === "buttons" && <ButtonsTab doc={doc} setDoc={(fn) => setDoc((d) => ({ ...d, ...fn(d) }))} plan={card.plan} onUpgrade={tabProps.onUpgrade} />}
               {tab === "sections" && <SectionsTab doc={doc} setDoc={setDoc} {...tabProps} />}
               {tab === "theme" && <ThemeTab theme={doc.profile.theme} onChange={setTheme} {...tabProps} />}
             </div>

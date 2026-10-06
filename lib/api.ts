@@ -67,7 +67,8 @@ export async function api<T = unknown>(path: string, opts: RequestOptions = {}):
     throw new ApiError(0, "Network error. Check your connection and try again.");
   }
 
-  if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/auth/login")) {
+  // Owner pages handle their own sign-in; only admin sessions bounce to /login.
+  if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/auth/login") && !path.startsWith("/owner/")) {
     // Session expired or revoked: clear the stale cookie and go to sign-in.
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     const next = encodeURIComponent(window.location.pathname + window.location.search);

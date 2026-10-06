@@ -50,7 +50,10 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
 
   // Card edits must show on the very next tap, so note which public pages
   // they touch (the slug before a rename or delete, and after).
-  const cardMutation = !["GET", "HEAD"].includes(request.method) && path[0] === "admin" && path[1] === "cards";
+  const cardMutation =
+    (!["GET", "HEAD"].includes(request.method) && path[0] === "admin" && path[1] === "cards") ||
+    // A card owner saving their own buttons and social links.
+    (request.method === "PUT" && path[0] === "owner" && path[1] === "card");
   const cardId = cardMutation && /^[0-9a-f-]{36}$/i.test(path[2] ?? "") ? path[2] : null;
   const slugBefore = cardId && ["PATCH", "DELETE"].includes(request.method) ? await currentSlug(cardId, headers) : null;
 

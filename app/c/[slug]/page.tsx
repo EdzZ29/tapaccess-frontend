@@ -55,8 +55,9 @@ export default async function PublicCardPage({ params }: PageProps<"/c/[slug]">)
   const warmVCard = getCachedVCard(slug);
   after(() => warmVCard);
 
-  // Don't count the admin's own checks of a card as visits.
-  const isAdmin = (await cookies()).has(SESSION_COOKIE);
+  // Neither the admin's nor the owner's own checks of a card count as visits.
+  const jar = await cookies();
+  const isAdmin = jar.has(SESSION_COOKIE) || jar.has(`${SESSION_COOKIE}_owner`);
   return (
     <>
       {/* Browser bar colour. Rendered here (hoisted into <head>) instead of

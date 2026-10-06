@@ -26,6 +26,9 @@ export interface EditorDoc {
   socialLinks: Keyed<SocialLink>[];
 }
 
+/** The part of the document the Buttons & links tab edits (also used by the owner editor). */
+export type LinksDoc = Pick<EditorDoc, "buttons" | "socialLinks">;
+
 let counter = 0;
 export const newKey = () => `new-${Date.now().toString(36)}-${(counter++).toString(36)}`;
 export const rowKey = (row: { id?: string; _key?: string }) => row.id ?? row._key ?? "";
