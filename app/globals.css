@@ -185,3 +185,61 @@ dialog::backdrop {
     translate: 0 -10px;
   }
 }
+
+/* Card loading skeleton: soft grey blocks with a light sweep across them. */
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #e6e6e9;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/*
+ * Notes under the loading skeleton, timed in CSS: the skeleton is plain
+ * streamed HTML (it never hydrates while the page is loading), so no JS runs.
+ * The first note appears at 2.5 s; at 9 s it gives way to the second.
+ */
+@keyframes note-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes note-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.load-note-1,
+.load-note-2 {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease;
+}
+
+.load-note-1 {
+  animation-name: note-in, note-out;
+  animation-duration: 0.4s, 0.3s;
+  animation-delay: 2.5s, 9s;
+}
+
+.load-note-2 {
+  animation-name: note-in;
+  animation-duration: 0.4s;
+  animation-delay: 9.3s;
+}

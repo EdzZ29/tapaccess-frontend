@@ -1,9 +1,10 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import { after } from "next/server";
 import { notFound } from "next/navigation";
 import { ProfileView } from "@/components/profile/profile-view";
 import { CardUnavailable } from "@/components/profile/status-pages";
-import { getPublicProfile } from "@/lib/server-api";
+import { getCachedVCard, getPublicProfile } from "@/lib/server-api";
 import { absoluteUrl, cardUrl } from "@/lib/utils";
 
 // Room for a sleeping API server to wake up (Render free plan) before the page gives up.
@@ -39,12 +40,6 @@ export async function generateMetadata({ params }: PageProps<"/c/[slug]">): Prom
   };
 }
 
-export async function generateViewport({ params }: PageProps<"/c/[slug]">): Promise<Viewport> {
-  const { slug } = await params;
-  const result = await getPublicProfile(slug);
-  return { themeColor: result.kind === "ok" ? result.profile.theme.backgroundColor : "#f8fafc" };
-}
-
 export default async function PublicCardPage({ params }: PageProps<"/c/[slug]">) {
   const { slug } = await params;
   const result = await getPublicProfile(slug);
@@ -53,7 +48,21 @@ export default async function PublicCardPage({ params }: PageProps<"/c/[slug]">)
   if (result.kind === "unavailable") return <CardUnavailable />;
   if (result.kind === "error") throw new Error(`Profile request failed with status ${result.status}`);
 
+  // Have the vCard cached before the visitor taps Save contact (or the card
+  // opens on it), so it never waits for a sleeping API. Started during the
+  // render (not inside `after`, where the data cache isn't writable) without
+  // being awaited; `after` keeps the request alive until it's stored.
+  const warmVCard = getCachedVCard(slug);
+  after(() => warmVCard);
+
   // Don't count the admin's own checks of a card as visits.
   const isAdmin = (await cookies()).has(SESSION_COOKIE);
-  return <ProfileView profile={result.profile} trackVisits={!isAdmin} />;
+  return (
+    <>
+      {/* Browser bar colour. Rendered here (hoisted into <head>) instead of
+          generateViewport, which would hold back the loading skeleton. */}
+      <meta name="theme-color" content={result.profile.theme.backgroundColor} />
+      <ProfileView profile={result.profile} trackVisits={!isAdmin} />
+    </>
+  );
 }

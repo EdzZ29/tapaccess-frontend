@@ -16,7 +16,7 @@ function visitorIp(request: Request): string | undefined {
 }
 
 /** Origin of this site as the visitor reached it (any domain the deployment is served on). */
-function siteOrigin(request: Request): string {
+export function siteOrigin(request: Request): string {
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? new URL(request.url).host;
   const proto = request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.replace(":", "");
   return `${proto}://${host}`;

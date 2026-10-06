@@ -1,4 +1,7 @@
-import { API_URL, crossSiteReason, upstreamHeaders } from "@/lib/upstream";
+import { revalidateTag } from "next/cache";
+import { after } from "next/server";
+import { cardTag, getCachedVCard, getPublicProfile } from "@/lib/server-api";
+import { API_URL, crossSiteReason, SLUG_RE, upstreamHeaders } from "@/lib/upstream";
 
 /**
  * Same-origin gateway for every /api call from the dashboard (cards, media,
@@ -45,6 +48,12 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
     if (body.byteLength > MAX_BODY) return json(413, "This file is too large. Images must be 8 MB or smaller.");
   }
 
+  // Card edits must show on the very next tap, so note which public pages
+  // they touch (the slug before a rename or delete, and after).
+  const cardMutation = !["GET", "HEAD"].includes(request.method) && path[0] === "admin" && path[1] === "cards";
+  const cardId = cardMutation && /^[0-9a-f-]{36}$/i.test(path[2] ?? "") ? path[2] : null;
+  const slugBefore = cardId && ["PATCH", "DELETE"].includes(request.method) ? await currentSlug(cardId, headers) : null;
+
   let upstream: Response;
   try {
     upstream = await fetch(target, {
@@ -68,7 +77,45 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   for (const cookie of upstream.headers.getSetCookie()) out.append("set-cookie", cookie);
   if (!out.has("cache-control")) out.set("cache-control", "no-store");
 
+  if (cardMutation && upstream.ok) {
+    // Buffer the (small) JSON reply to learn the card's slug after the change.
+    const text = await upstream.text();
+    let slugAfter: string | null = null;
+    try {
+      slugAfter = (JSON.parse(text) as { slug?: unknown }).slug as string | null;
+    } catch {
+      // 204 / non-JSON reply (delete): only the old slug is affected.
+    }
+    refreshPublicCards([slugBefore, typeof slugAfter === "string" ? slugAfter : null]);
+    return new Response(text || null, { status: upstream.status, headers: out });
+  }
+
   return new Response(request.method === "HEAD" ? null : upstream.body, { status: upstream.status, headers: out });
+}
+
+/** The card's current slug, read just before a rename or delete. */
+async function currentSlug(id: string, headers: Headers): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/admin/cards/${id}`, { headers, cache: "no-store", signal: AbortSignal.timeout(15_000) });
+    return res.ok ? (((await res.json()) as { slug?: string }).slug ?? null) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Drops the cached public page and vCard of each affected card, then loads
+ * them again in the background (the API is awake right now), so the next
+ * tap is instant and already shows the change.
+ */
+function refreshPublicCards(slugs: (string | null)[]) {
+  const unique = [...new Set(slugs.filter((s): s is string => !!s && SLUG_RE.test(s)))];
+  for (const slug of unique) revalidateTag(cardTag(slug), { expire: 0 });
+  if (unique.length === 0) return;
+  // Started now (inside the request, where the data cache is writable),
+  // finished after the response is sent.
+  const refills = unique.flatMap((slug) => [getPublicProfile(slug), getCachedVCard(slug)]);
+  after(() => Promise.allSettled(refills));
 }
 
 export const GET = forward;
