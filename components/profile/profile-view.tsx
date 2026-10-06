@@ -2,12 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element -- images are pre-sized WebP from our upload pipeline; next/image would need per-host config for every storage provider */
 
-import { Mail, Pencil, Phone, Share2, UserPlus } from "lucide-react";
+import { Mail, Phone, UserPlus } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
-import { toast } from "sonner";
 import type { PublicProfile, SocialPlatform } from "@/lib/types";
 import { cn, initials, mapsSearchUrl, telHref, whatsappHref } from "@/lib/utils";
 import { ActionLink } from "./action-link";
+import { CardMenu } from "./card-menu";
 import { openStatus, useHydrated } from "./hours";
 import { socialButtonStyle } from "./brand-colors";
 import { BrandMark, ButtonIcon } from "./icons";
@@ -46,24 +46,11 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
             ))}
           </div>
           <footer className="px-6 pt-6 pb-8 text-center text-xs" style={{ color: "var(--p-muted)" }}>
-            {profile.ownerEditing && (
-              // For the card's owner (Business): signs in with their access code.
-              <a
-                href={`/c/${profile.slug}/edit`}
-                className="mb-5 inline-flex h-9 items-center gap-2 rounded-full border px-4 text-[0.8rem] font-semibold transition-transform active:scale-[0.98]"
-                style={{ borderColor: "var(--p-border)", color: "var(--p-text)", background: "var(--p-surface)" }}
-              >
-                <Pencil className="h-3.5 w-3.5" aria-hidden />
-                Edit my links
-              </a>
-            )}
-            <span className="block">
-              Powered by <span className="font-semibold">TapAccess</span>
+            Powered by <span className="font-semibold">TapAccess</span>
             {" · "}
-              <a href="/privacy" className="underline-offset-2 hover:underline">
-                Privacy
-              </a>
-            </span>
+            <a href="/privacy" className="underline-offset-2 hover:underline">
+              Privacy
+            </a>
           </footer>
           <ActionBar profile={profile} />
         </div>
@@ -204,26 +191,6 @@ function heroButtonStyle(primary: boolean, onPhoto: boolean, t: PublicProfile["t
 }
 
 function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean }) {
-  const { preview, track } = useTracking();
-
-  const share = async () => {
-    track("contact", "share");
-    if (preview) {
-      toast.info("Sharing works on the live page");
-      return;
-    }
-    const url = window.location.href;
-    try {
-      if (navigator.share) await navigator.share({ title: profile.businessName, text: profile.tagline ?? undefined, url });
-      else {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copied");
-      }
-    } catch {
-      // Share sheet dismissed.
-    }
-  };
-
   return (
     <div className="flex items-center justify-between gap-4 px-6 pt-[max(env(safe-area-inset-top),1.5rem)]">
       <div className="flex min-w-0 items-center gap-3">
@@ -240,15 +207,7 @@ function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean
         )}
         <span className="truncate text-[0.82rem] font-bold tracking-[0.2em] uppercase">{profile.businessName}</span>
       </div>
-      <button
-        type="button"
-        onClick={share}
-        aria-label={`Share ${profile.businessName}`}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-transform active:scale-95"
-        style={{ borderColor: onPhoto ? "rgba(255,255,255,0.35)" : "var(--p-border)" }}
-      >
-        <Share2 className="h-[18px] w-[18px]" />
-      </button>
+      <CardMenu profile={profile} onPhoto={onPhoto} />
     </div>
   );
 }
