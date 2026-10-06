@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- see profile-view.tsx */
 
-import { ArrowUpRight, ChevronLeft, ChevronRight, Globe, Mail, MapPin, Navigation, Phone, Star, X } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Globe, Mail, MapPin, Navigation, Phone, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { SECTION_META, socialLabel, VCARD_ACTION, WEEKDAYS } from "@/lib/constants";
 import type { PublicProfile } from "@/lib/types";
@@ -10,6 +10,7 @@ import { cn, formatDate, mapsSearchUrl, telHref, whatsappHref } from "@/lib/util
 import { ActionLink } from "./action-link";
 import { formatTime, openStatus, useHydrated, weekdayIndex } from "./hours";
 import { socialButtonStyle } from "./brand-colors";
+import { GOOGLE_REVIEW_STYLE, GoogleLogo, GoogleStars, isGoogleReviewLink } from "./google";
 import { BrandMark, ButtonIcon, SocialIcon } from "./icons";
 import { buttonStyle, headingStyle, shapeClass } from "./theme";
 
@@ -153,24 +154,29 @@ function Actions({ profile, title }: { profile: PublicProfile; title: string }) 
   return (
     <Block title={title}>
       <nav aria-label={title} className="space-y-3">
-        {profile.buttons.slice(HERO_BUTTON_COUNT).map((b) => (
-          <ActionLink
-            key={b.id}
-            href={resolveButtonHref(b.url, profile.slug)}
-            kind="button"
-            trackId={b.id}
-            className={cn("flex min-h-16 w-full items-center gap-4 border px-5 py-3 text-left text-[1rem] font-semibold transition-transform active:scale-[0.99]", shapeClass(t))}
-            style={
-              b.highlighted || isCallLink(b.url) || t.buttonStyle === "solid"
-                ? buttonStyle(t, b.highlighted || isCallLink(b.url))
-                : buttonStyle({ ...t, buttonStyle: "soft" })
-            }
-          >
-            <ButtonIcon name={b.icon} className="h-5 w-5 shrink-0" />
-            <span className="flex-1 text-balance">{b.label}</span>
-            <ArrowUpRight className="h-5 w-5 shrink-0 opacity-60" aria-hidden />
-          </ActionLink>
-        ))}
+        {profile.buttons.slice(HERO_BUTTON_COUNT).map((b) => {
+          const google = isGoogleReviewLink(b.url, b.label);
+          return (
+            <ActionLink
+              key={b.id}
+              href={resolveButtonHref(b.url, profile.slug)}
+              kind="button"
+              trackId={b.id}
+              className={cn("flex min-h-16 w-full items-center gap-4 border px-5 py-3 text-left text-[1rem] font-semibold transition-transform active:scale-[0.99]", shapeClass(t))}
+              style={
+                google
+                  ? GOOGLE_REVIEW_STYLE
+                  : b.highlighted || isCallLink(b.url) || t.buttonStyle === "solid"
+                    ? buttonStyle(t, b.highlighted || isCallLink(b.url))
+                    : buttonStyle({ ...t, buttonStyle: "soft" })
+              }
+            >
+              {google ? <GoogleLogo className="h-5 w-5 shrink-0" /> : <ButtonIcon name={b.icon} className="h-5 w-5 shrink-0" />}
+              <span className="flex-1 text-balance">{b.label}</span>
+              {google ? <GoogleStars className="shrink-0 text-sm" /> : <ArrowUpRight className="h-5 w-5 shrink-0 opacity-60" aria-hidden />}
+            </ActionLink>
+          );
+        })}
       </nav>
     </Block>
   );
@@ -208,8 +214,8 @@ function Contact({ profile, title }: { profile: PublicProfile; title: string }) 
 function Social({ profile, title }: { profile: PublicProfile; title: string }) {
   return (
     <Block title={title}>
-      {/* Equal-width grid: two per row, every button the same size. */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* One per row, full width, in each network's own colours. */}
+      <div className="grid grid-cols-1 gap-3">
         {profile.socialLinks.map((s) => (
           <ActionLink
             key={s.id}
@@ -217,10 +223,10 @@ function Social({ profile, title }: { profile: PublicProfile; title: string }) {
             kind="social"
             trackId={s.platform}
             aria-label={socialLabel(s.platform, s.label)}
-            className="flex h-12 w-full min-w-0 items-center justify-center gap-2.5 rounded-full px-4 text-[0.9rem] font-semibold shadow-sm transition-transform active:scale-95"
+            className="flex h-14 w-full min-w-0 items-center justify-center gap-3 rounded-full px-5 text-[0.95rem] font-semibold shadow-sm transition-transform active:scale-[0.98]"
             style={socialButtonStyle(s.platform)}
           >
-            <SocialIcon platform={s.platform} className="h-[18px] w-[18px] shrink-0" />
+            <SocialIcon platform={s.platform} className="h-5 w-5 shrink-0" />
             <span className="truncate">{socialLabel(s.platform, s.label)}</span>
           </ActionLink>
         ))}
@@ -278,7 +284,7 @@ function Location({ profile, title }: { profile: PublicProfile; title: string })
           <MapPin className="mt-1 h-5 w-5 shrink-0" aria-hidden />
           {c.address}
         </p>
-        <div className={cn("mt-5 grid gap-3", c.reviewsUrl ? "grid-cols-2" : "grid-cols-1")}>
+        <div className="mt-5 grid grid-cols-1 gap-3">
           <ActionLink
             href={c.mapsUrl ?? mapsSearchUrl(c.address!)}
             kind="contact"
@@ -290,15 +296,17 @@ function Location({ profile, title }: { profile: PublicProfile; title: string })
             Directions
           </ActionLink>
           {c.reviewsUrl && (
+            // The field is "Google Reviews link", so it always gets the Google look.
             <ActionLink
               href={c.reviewsUrl}
               kind="contact"
               trackId="reviews"
-              className={cn("flex h-12 items-center justify-center gap-2 border text-[0.92rem] font-semibold", shapeClass(t))}
-              style={{ borderColor: "var(--p-border)" }}
+              className={cn("flex h-12 items-center justify-center gap-2.5 border text-[0.92rem] font-semibold", shapeClass(t))}
+              style={GOOGLE_REVIEW_STYLE}
             >
-              <Star className="h-4 w-4" aria-hidden />
-              Reviews
+              <GoogleLogo className="h-[18px] w-[18px] shrink-0" />
+              Review us on Google
+              <GoogleStars className="text-[0.8rem]" />
             </ActionLink>
           )}
         </div>

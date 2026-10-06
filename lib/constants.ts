@@ -116,6 +116,7 @@ export const BUTTON_LABEL_PRESETS: { group: string; label: string; icon: string;
   { group: "Learn more", label: "Download brochure", icon: "download", linkHint: "https://… file.pdf" },
   { group: "Learn more", label: "Watch our video", icon: "video", linkHint: "https://youtube.com/…" },
   { group: "Learn more", label: "Upcoming events", icon: "ticket", linkHint: "https://… events" },
+  { group: "Engage", label: "Review us on Google", icon: "star", linkHint: "https://g.page/r/…/review" },
   { group: "Engage", label: "Leave us a review", icon: "star", linkHint: "https://g.page/r/…/review" },
   { group: "Engage", label: "Join our mailing list", icon: "heart", linkHint: "https://… sign-up form" },
   { group: "Engage", label: "We're hiring", icon: "briefcase", linkHint: "https://… careers" },

@@ -8,6 +8,7 @@ import type { PublicProfile, SocialPlatform } from "@/lib/types";
 import { cn, initials, mapsSearchUrl, telHref, whatsappHref } from "@/lib/utils";
 import { ActionLink } from "./action-link";
 import { CardMenu } from "./card-menu";
+import { GOOGLE_REVIEW_STYLE, GoogleLogo, isGoogleReviewLink } from "./google";
 import { openStatus, useHydrated } from "./hours";
 import { socialButtonStyle } from "./brand-colors";
 import { BrandMark, ButtonIcon } from "./icons";
@@ -114,7 +115,9 @@ function Hero({ profile, embedded }: { profile: PublicProfile; embedded: boolean
 
         {heroButtons.length > 0 && (
           <div className={cn("mt-8 grid w-full gap-3", heroButtons.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
-            {heroButtons.map((b, i) => (
+            {heroButtons.map((b, i) => {
+              const google = isGoogleReviewLink(b.href, b.label);
+              return (
               <ActionLink
                 key={b.key}
                 href={b.href}
@@ -124,12 +127,19 @@ function Hero({ profile, embedded }: { profile: PublicProfile; embedded: boolean
                   "flex min-h-14 items-center justify-center gap-2.5 border px-4 py-3 text-center text-[0.95rem] leading-tight font-semibold transition-transform active:scale-[0.98]",
                   shapeClass(t),
                 )}
-                style={b.kind === "social" ? socialButtonStyle(b.trackId as SocialPlatform) : heroButtonStyle(i === 0, Boolean(photo), t, b.highlighted)}
+                style={
+                  google
+                    ? GOOGLE_REVIEW_STYLE
+                    : b.kind === "social"
+                      ? socialButtonStyle(b.trackId as SocialPlatform)
+                      : heroButtonStyle(i === 0, Boolean(photo), t, b.highlighted)
+                }
               >
-                <ButtonIcon name={b.icon} className="h-[18px] w-[18px] shrink-0" />
+                {google ? <GoogleLogo className="h-[18px] w-[18px] shrink-0" /> : <ButtonIcon name={b.icon} className="h-[18px] w-[18px] shrink-0" />}
                 <span className="line-clamp-2 text-balance">{b.label}</span>
               </ActionLink>
-            ))}
+              );
+            })}
           </div>
         )}
 
