@@ -40,7 +40,7 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
         )}
       >
         <div className="relative mx-auto flex w-full max-w-[520px] flex-col @[620px]:pt-6">
-          <Hero profile={profile} embedded={embedded} />
+          <Hero profile={profile} />
           <div className="space-y-12 px-6 pt-12 pb-6">
             {profile.sections.map((section) => (
               <ProfileSection key={section.type} section={section} profile={profile} />
@@ -63,7 +63,7 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
 
-function Hero({ profile, embedded }: { profile: PublicProfile; embedded: boolean }) {
+function Hero({ profile }: { profile: PublicProfile }) {
   const t = profile.theme;
   const photo = t.layout !== "minimal" && profile.coverUrl ? profile.coverUrl : null;
   const centered = t.layout === "centered";
@@ -76,7 +76,7 @@ function Hero({ profile, embedded }: { profile: PublicProfile; embedded: boolean
 
   return (
     <header
-      className={cn("relative isolate flex flex-col overflow-hidden", photo && "@[620px]:rounded-[28px]", photo && (embedded ? "min-h-[660px]" : "min-h-[92svh]"))}
+      className={cn("relative isolate flex flex-col overflow-hidden", photo && "@[620px]:rounded-[28px]")}
       style={ink}
     >
       {photo && (
@@ -88,7 +88,7 @@ function Hero({ profile, embedded }: { profile: PublicProfile; embedded: boolean
 
       <TopBar profile={profile} onPhoto={Boolean(photo)} />
 
-      <div className={cn("flex flex-1 flex-col px-6 pb-10", photo ? "justify-end pt-24" : "pt-14", centered && "items-center text-center")}>
+      <div className={cn("flex flex-1 flex-col px-6 pt-14 pb-10", centered && "items-center text-center")}>
         {profile.category && (
           <p className={cn("mb-5 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.22em] uppercase", centered && "justify-center")} style={{ color: muted }}>
             {!centered && <span className="h-px w-8 bg-current" aria-hidden />}
