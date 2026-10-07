@@ -133,6 +133,7 @@ export const SOCIAL_PLATFORMS:{ value: SocialPlatform; label: string; placeholde
   { value: "telegram", label: "Telegram", placeholder: "https://t.me/yourbusiness" },
   { value: "pinterest", label: "Pinterest", placeholder: "https://pinterest.com/yourbusiness" },
   { value: "threads", label: "Threads", placeholder: "https://threads.net/@yourbusiness" },
+  { value: "google_reviews", label: "Google Reviews", placeholder: "https://g.page/r/…/review" },
   { value: "other", label: "Other", placeholder: "https://…" },
 ];
 

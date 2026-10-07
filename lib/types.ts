@@ -27,6 +27,7 @@ export type SocialPlatform =
   | "telegram"
   | "pinterest"
   | "threads"
+  | "google_reviews"
   | "other";
 
 export type ThemeFont =

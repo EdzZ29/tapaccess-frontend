@@ -17,7 +17,7 @@ export interface PlanFeatures {
 export const PLAN_FEATURES: Record<CardPlan, PlanFeatures> = {
   starter: {
     images: false,
-    socialPlatforms: ["facebook", "instagram", "tiktok", "x"],
+    socialPlatforms: ["facebook", "instagram", "tiktok", "x", "google_reviews"],
     sections: ["actions", "about", "contact", "social"],
     alwaysOn: ["contact", "social"],
   },
@@ -32,7 +32,7 @@ export const PLAN_META: Record<CardPlan, { label: string; tagline: string; featu
       "Business name, short description & about",
       "Custom CTA buttons",
       "Contact details, Call & Save contact",
-      "Facebook, Instagram, TikTok & X",
+      "Facebook, Instagram, TikTok, X & Google Reviews",
       "All themes, colours & fonts",
     ],
   },

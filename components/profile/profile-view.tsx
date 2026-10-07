@@ -2,16 +2,16 @@
 
 /* eslint-disable @next/next/no-img-element -- images are pre-sized WebP from our upload pipeline; next/image would need per-host config for every storage provider */
 
-import { Mail, Phone, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { PublicProfile, SocialPlatform } from "@/lib/types";
-import { cn, initials, mapsSearchUrl, telHref, whatsappHref } from "@/lib/utils";
+import { cn, initials, mapsSearchUrl, telHref } from "@/lib/utils";
 import { ActionLink } from "./action-link";
 import { CardMenu } from "./card-menu";
 import { GOOGLE_REVIEW_STYLE, GoogleLogo, isGoogleReviewLink } from "./google";
 import { openStatus, useHydrated } from "./hours";
 import { socialButtonStyle } from "./brand-colors";
-import { BrandMark, ButtonIcon } from "./icons";
+import { ButtonIcon } from "./icons";
 import { HERO_BUTTON_COUNT, heroText, isCallLink, ProfileSection, resolveButtonHref, vcardHref } from "./profile-sections";
 import { TapSheet } from "./tap-sheet";
 import { backgroundStyle, buttonStyle, headingStyle, HIGHLIGHT, shapeClass, themeVars } from "./theme";
@@ -252,9 +252,7 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
       trackId: "directions",
     });
   }
-  if (c.phone) facts.push({ key: "phone", label: "Call", value: c.phone, href: telHref(c.phone), trackId: "phone" });
-  if (c.whatsapp && c.whatsapp !== c.phone) facts.push({ key: "wa", label: "WhatsApp", value: c.whatsapp, href: whatsappHref(c.whatsapp), trackId: "whatsapp" });
-  if (c.email) facts.push({ key: "email", label: "Email", value: c.email, href: `mailto:${c.email}`, trackId: "email" });
+  // Phone, WhatsApp and email are not repeated here: Quick Actions lists them.
 
   const shown = facts.slice(0, 4);
   if (shown.length === 0) return null;
@@ -286,55 +284,28 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
 
 // ─── Sticky action bar ──────────────────────────────────────────────────────
 
+/** The bar pinned to the bottom of the card: one full-width Save contact button. */
 function ActionBar({ profile }: { profile: PublicProfile }) {
   const { slug } = useTracking();
   const c = profile.contact;
-  const t = profile.theme;
-  const shape = shapeClass(t);
-
-  // No main phone but extra numbers (e.g. only Smart/Globe): call the first one.
-  const callNumber = c.phone ?? c.extraPhones?.[0]?.number ?? null;
-  const primary = callNumber
-    ? { href: telHref(callNumber), label: "Call", icon: <Phone className="h-[18px] w-[18px]" />, trackId: "phone" }
-    : c.whatsapp
-      ? { href: whatsappHref(c.whatsapp), label: "WhatsApp", icon: <BrandMark name="whatsapp" className="h-[18px] w-[18px]" />, trackId: "whatsapp" }
-      : c.email
-        ? { href: `mailto:${c.email}`, label: "Email", icon: <Mail className="h-[18px] w-[18px]" />, trackId: "email" }
-        : null;
   const canSave = Boolean(c.phone || c.email || c.whatsapp || c.extraPhones?.length);
-  if (!primary && !canSave) return null;
+  if (!canSave) return null;
 
   return (
     <div
       className="sticky bottom-0 z-20 border-t px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.875rem)]"
       style={{ background: "color-mix(in srgb, var(--p-bg) 88%, transparent)", borderColor: "var(--p-hairline)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
     >
-      <div className={cn("grid gap-3", primary && canSave ? "grid-cols-2" : "grid-cols-1")}>
-        {primary && (
-          <ActionLink
-            href={primary.href}
-            kind="contact"
-            trackId={primary.trackId}
-            className={cn("flex h-[52px] items-center justify-center gap-2 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shape)}
-            style={primary.trackId === "phone" ? HIGHLIGHT : { background: "var(--p-primary)", color: "var(--p-on-primary)" }}
-          >
-            {primary.icon}
-            {primary.label}
-          </ActionLink>
-        )}
-        {canSave && (
-          <ActionLink
-            href={vcardHref(slug)}
-            kind="contact"
-            trackId="vcard"
-            className={cn("flex h-[52px] items-center justify-center gap-2 border text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shape)}
-            style={{ borderColor: "var(--p-border)", color: "var(--p-text)", background: "var(--p-surface)" }}
-          >
-            <UserPlus className="h-[18px] w-[18px]" />
-            Save contact
-          </ActionLink>
-        )}
-      </div>
+      <ActionLink
+        href={vcardHref(slug)}
+        kind="contact"
+        trackId="vcard"
+        className={cn("flex h-[52px] w-full items-center justify-center gap-2 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(profile.theme))}
+        style={HIGHLIGHT}
+      >
+        <UserPlus className="h-[18px] w-[18px]" />
+        Save contact
+      </ActionLink>
     </div>
   );
 }

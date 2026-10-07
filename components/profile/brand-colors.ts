@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { SocialPlatform } from "@/lib/types";
+import { GOOGLE_REVIEW_STYLE } from "./google";
 
 /** Official brand colours of each network's logo. */
 const BRAND: Partial<Record<SocialPlatform, string>> = {
@@ -24,6 +25,7 @@ const INSTAGRAM =
  * fall back to the card's surface style.
  */
 export function socialButtonStyle(platform: SocialPlatform): CSSProperties {
+  if (platform === "google_reviews") return { ...GOOGLE_REVIEW_STYLE, border: "1px solid #dadce0" };
   if (platform === "instagram") {
     return { background: INSTAGRAM, color: "#ffffff", border: "1px solid transparent" };
   }

@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import type { SocialPlatform } from "@/lib/types";
 import { BRAND_PATHS, type BrandIcon } from "./brand-paths";
+import { GoogleLogo } from "./google";
 
 const LUCIDE: Record<string, LucideIcon> = {
   link: LinkIcon,
@@ -91,6 +92,7 @@ export function ButtonIcon({ name, className }: { name: string; className?: stri
 }
 
 export function SocialIcon({ platform, className }: { platform: SocialPlatform; className?: string }) {
+  if (platform === "google_reviews") return <GoogleLogo className={className} />;
   if (platform in BRAND_PATHS) return <BrandMark name={platform as BrandIcon} className={className} />;
   if (platform === "linkedin") {
     return (

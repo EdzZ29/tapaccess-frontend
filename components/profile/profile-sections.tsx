@@ -222,20 +222,25 @@ function Social({ profile, title }: { profile: PublicProfile; title: string }) {
     <Block title={title}>
       {/* One per row, full width, in each network's own colours. */}
       <div className="grid grid-cols-1 gap-3">
-        {profile.socialLinks.map((s) => (
+        {profile.socialLinks.map((s) => {
+          const google = s.platform === "google_reviews";
+          const label = google ? "Review us on Google" : socialLabel(s.platform, s.label);
+          return (
           <ActionLink
             key={s.id}
             href={s.url}
             kind="social"
             trackId={s.platform}
-            aria-label={socialLabel(s.platform, s.label)}
+            aria-label={label}
             className="flex h-14 w-full min-w-0 items-center justify-center gap-3 rounded-full px-5 text-[0.95rem] font-semibold shadow-sm transition-transform active:scale-[0.98]"
             style={socialButtonStyle(s.platform)}
           >
             <SocialIcon platform={s.platform} className="h-5 w-5 shrink-0" />
-            <span className="truncate">{socialLabel(s.platform, s.label)}</span>
+            <span className="truncate">{label}</span>
+            {google && <GoogleStars className="shrink-0 text-[0.8rem]" />}
           </ActionLink>
-        ))}
+          );
+        })}
       </div>
     </Block>
   );
