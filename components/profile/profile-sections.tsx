@@ -185,10 +185,12 @@ function Actions({ profile, title }: { profile: PublicProfile; title: string }) 
 function Contact({ profile, title }: { profile: PublicProfile; title: string }) {
   const c = profile.contact;
   const rows = [
-    c.phone && <Row key="p" icon={<Phone className="h-[18px] w-[18px]" />} label="Phone" value={c.phone} href={telHref(c.phone)} trackId="phone" accent />,
+    c.phone && (
+      <Row key="p" icon={<Phone className="h-[18px] w-[18px]" />} label={c.phoneLabel || "Phone"} value={c.phone} href={telHref(c.phone)} trackId="phone" accent />
+    ),
     // More numbers (Smart, Globe, landline…): each one callable, and all saved with Save contact.
     ...(c.extraPhones ?? []).map((x, i) => (
-      <Row key={`x${i}`} icon={<Phone className="h-[18px] w-[18px]" />} label={x.label} value={x.number} href={telHref(x.number)} trackId="phone" />
+      <Row key={`x${i}`} icon={<Phone className="h-[18px] w-[18px]" />} label={x.label} value={x.number} href={telHref(x.number)} trackId="phone" accent />
     )),
     c.whatsapp && (
       <Row key="w" icon={<BrandMark name="whatsapp" className="h-[18px] w-[18px]" />} label="WhatsApp" value={c.whatsapp} href={whatsappHref(c.whatsapp)} trackId="whatsapp" />

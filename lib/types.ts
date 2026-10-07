@@ -85,6 +85,8 @@ export interface ProfileFields {
   logoUrl: string | null;
   coverUrl: string | null;
   phone: string | null;
+  /** Optional name for the main phone, e.g. "Globe" (shown instead of "Phone"). */
+  phoneLabel: string | null;
   extraPhones: ExtraPhone[];
   whatsapp: string | null;
   email: string | null;
@@ -185,6 +187,7 @@ export interface PublicProfile {
   coverUrl: string | null;
   contact: {
     phone: string | null;
+    phoneLabel?: string | null;
     extraPhones?: ExtraPhone[];
     whatsapp: string | null;
     email: string | null;

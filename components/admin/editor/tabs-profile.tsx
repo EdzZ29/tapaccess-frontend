@@ -120,6 +120,40 @@ function TapActionCard({ value: p, onChange }: { value: ProfileFields; onChange:
   );
 }
 
+/** The main phone with an optional label ("Globe", "Smart"…), shown on the card instead of "Phone". */
+function MainPhone({ value: p, onChange }: { value: ProfileFields; onChange: (patch: Partial<ProfileFields>) => void }) {
+  const listId = useId();
+  return (
+    <div className="flex items-end gap-2">
+      <label className="w-28 shrink-0 space-y-1.5">
+        <span className="block text-sm font-medium text-ink">Label</span>
+        <Input
+          list={listId}
+          value={p.phoneLabel ?? ""}
+          maxLength={30}
+          placeholder="Phone"
+          onChange={(e) => onChange({ phoneLabel: e.target.value || null })}
+        />
+      </label>
+      <datalist id={listId}>
+        {PHONE_LABELS.map((l) => (
+          <option key={l} value={l} />
+        ))}
+      </datalist>
+      <TextInput
+        className="min-w-0 flex-1"
+        label="Phone"
+        value={p.phone}
+        onChange={(v) => onChange({ phone: v })}
+        type="tel"
+        inputMode="tel"
+        placeholder="+63 917 123 4567"
+        maxLength={32}
+      />
+    </div>
+  );
+}
+
 const MAX_EXTRA_PHONES = 5;
 const PHONE_LABELS = ["Smart", "Globe", "DITO", "TNT", "TM", "Sun", "Landline", "Office", "Mobile", "Viber"];
 
@@ -136,7 +170,9 @@ function ExtraPhones({ value, onChange }: { value: ExtraPhone[]; onChange: (v: E
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-ink">More numbers</p>
-          <p className="text-xs text-ink-3">Other networks or a landline. Visitors can call each one, and Save contact keeps them all.</p>
+          <p className="text-xs text-ink-3">
+            Other networks or a landline. Each shows in Quick Actions with its label, and Save contact keeps them all.
+          </p>
         </div>
         <Button
           size="sm"
@@ -155,7 +191,7 @@ function ExtraPhones({ value, onChange }: { value: ExtraPhone[]; onChange: (v: E
       {value.map((x, i) => (
         <div key={i} className="flex items-end gap-2">
           <label className="w-32 shrink-0 space-y-1.5">
-            <span className="text-xs font-medium text-ink-2">Label</span>
+            <span className="block text-xs font-medium text-ink-2">Label</span>
             <Input
               list={listId}
               value={x.label}
@@ -166,7 +202,7 @@ function ExtraPhones({ value, onChange }: { value: ExtraPhone[]; onChange: (v: E
             />
           </label>
           <label className="min-w-0 flex-1 space-y-1.5">
-            <span className="text-xs font-medium text-ink-2">Number</span>
+            <span className="block text-xs font-medium text-ink-2">Number</span>
             <Input
               type="tel"
               inputMode="tel"
@@ -200,7 +236,7 @@ export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<Pro
     <div className="space-y-4">
       <EditorCard title="Contact details" description="Phone, WhatsApp, email and website also power the quick-action buttons and Save contact.">
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextInput label="Phone" value={p.phone} onChange={(v) => onChange({ phone: v })} type="tel" inputMode="tel" placeholder="+1 555 123 4567" maxLength={32} />
+          <MainPhone value={p} onChange={onChange} />
           <TextInput
             label="WhatsApp"
             value={p.whatsapp}
