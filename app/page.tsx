@@ -22,6 +22,7 @@ import { BrandLogo } from "@/components/brand";
 import { accentFont, displayFont } from "@/components/landing/fonts";
 import { BusinessCarousel } from "@/components/landing/business-carousel";
 import { HeroVisual } from "@/components/landing/hero-visual";
+import { BrandMark } from "@/components/profile/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PLAN_META } from "@/lib/plans";
 import { getFeaturedCards } from "@/lib/server-api";
@@ -64,25 +65,35 @@ export default async function Home() {
 
 interface ContactOption {
   label: string;
-  value: string;
+  /** Shown after the label on wider screens. */
+  value?: string;
   href: string;
   icon: ReactNode;
+  tone: "facebook" | "primary" | "light";
 }
 
-/** CONTACT_EMAIL / CONTACT_PHONE / CONTACT_MESSENGER; anything unset or invalid is left out. */
+/**
+ * CONTACT_FACEBOOK / CONTACT_EMAIL / CONTACT_PHONE / CONTACT_MESSENGER, set
+ * on the server (Vercel). Anything unset or invalid is left out; without an
+ * email the section shows a "Gmail, coming soon" placeholder.
+ */
 function contactOptions(): ContactOption[] {
   const options: ContactOption[] = [];
+  const facebook = process.env.CONTACT_FACEBOOK?.trim();
+  if (facebook && /^https:\/\/(www\.|m\.|web\.)?(facebook\.com|fb\.com|fb\.me|m\.me)\/\S+$/i.test(facebook)) {
+    options.push({ label: "Message us on Facebook", href: facebook, icon: <BrandMark name="facebook" className="h-5 w-5" />, tone: "facebook" });
+  }
   const email = process.env.CONTACT_EMAIL?.trim();
   if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    options.push({ label: "Email us", value: email, href: `mailto:${email}`, icon: <Mail className="h-5 w-5" /> });
+    options.push({ label: "Email us", value: email, href: `mailto:${email}`, icon: <Mail className="h-5 w-5" />, tone: "primary" });
   }
   const phone = process.env.CONTACT_PHONE?.trim();
   if (phone && /^\+?[0-9 ()\-.]{6,32}$/.test(phone)) {
-    options.push({ label: "Call us", value: phone, href: `tel:${phone.replace(/[^\d+]/g, "")}`, icon: <Phone className="h-5 w-5" /> });
+    options.push({ label: "Call us", value: phone, href: `tel:${phone.replace(/[^\d+]/g, "")}`, icon: <Phone className="h-5 w-5" />, tone: "light" });
   }
   const messenger = process.env.CONTACT_MESSENGER?.trim();
   if (messenger && /^https:\/\/\S+$/.test(messenger)) {
-    options.push({ label: "Message us", value: "Messenger", href: messenger, icon: <MessageCircle className="h-5 w-5" /> });
+    options.push({ label: "Message us", value: "Messenger", href: messenger, icon: <MessageCircle className="h-5 w-5" />, tone: "light" });
   }
   return options;
 }
@@ -498,27 +509,34 @@ function Contact({ options }: { options: ContactOption[] }) {
           <p className="mx-auto mt-5 max-w-xl text-lg text-canvas/70">
             Tell us about your business and we&apos;ll design your page and program your card.
           </p>
-          {options.length > 0 ? (
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              {options.map((o, i) => (
-                <a
-                  key={o.href}
-                  href={o.href}
-                  {...(o.href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className={cn(
-                    "inline-flex h-12 items-center gap-2.5 rounded-full px-6 text-[0.95rem] font-semibold transition-opacity hover:opacity-90",
-                    i === 0 ? "bg-brand text-white" : "bg-canvas text-ink",
-                  )}
-                >
-                  {o.icon}
-                  {o.label}
-                  <span className="hidden font-normal opacity-70 sm:inline">· {o.value}</span>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-10 text-canvas/70">Contact details are on their way. Check back soon.</p>
-          )}
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            {options.map((o) => (
+              <a
+                key={o.href}
+                href={o.href}
+                {...(o.href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className={cn(
+                  "inline-flex h-12 items-center gap-2.5 rounded-full px-6 text-[0.95rem] font-semibold transition-opacity hover:opacity-90",
+                  o.tone === "facebook" ? "bg-[#1877F2] text-white" : o.tone === "primary" ? "bg-brand text-white" : "bg-canvas text-ink",
+                )}
+              >
+                {o.icon}
+                {o.label}
+                {o.value && <span className="hidden font-normal opacity-70 sm:inline">· {o.value}</span>}
+              </a>
+            ))}
+            {!options.some((o) => o.href.startsWith("mailto:")) && (
+              // Email isn't set up yet (CONTACT_EMAIL): show it as coming soon.
+              <span
+                aria-disabled="true"
+                className="inline-flex h-12 cursor-default items-center gap-2.5 rounded-full border border-canvas/25 px-6 text-[0.95rem] font-semibold text-canvas/60"
+              >
+                <Mail className="h-5 w-5" aria-hidden />
+                Gmail
+                <span className="rounded-full bg-canvas/15 px-2 py-0.5 text-xs font-medium text-canvas/80">Coming soon</span>
+              </span>
+            )}
+          </div>
         </div>
       </Container>
     </section>
