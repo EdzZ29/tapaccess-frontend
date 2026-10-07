@@ -113,7 +113,7 @@ export default function CardsPage() {
             size="icon"
             className="shrink-0"
             onClick={() => setOrder((o) => (o === "asc" ? "desc" : "asc"))}
-            aria-label={order === "asc" ? "Ascending — switch to descending" : "Descending — switch to ascending"}
+            aria-label={order === "asc" ? "Ascending: switch to descending" : "Descending: switch to ascending"}
             title={order === "asc" ? "Ascending" : "Descending"}
           >
             {order === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}

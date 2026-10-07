@@ -99,7 +99,7 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
               </div>
               <div>
                 <dt className="text-ink-3">Code made</dt>
-                <dd className="font-medium text-ink">{access.codeSetAt ? formatDate(access.codeSetAt) : "—"}</dd>
+                <dd className="font-medium text-ink">{access.codeSetAt ? formatDate(access.codeSetAt) : "-"}</dd>
               </div>
               <div>
                 <dt className="text-ink-3">Owner&apos;s last edit</dt>
@@ -109,7 +109,7 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
 
             {issued && (
               <div className="space-y-3 rounded-xl border border-brand/30 bg-brand-soft/40 p-4">
-                <p className="text-sm font-medium text-ink">Give these to the owner. The code is shown only now — copy it before leaving this page.</p>
+                <p className="text-sm font-medium text-ink">Give these to the owner. The code is shown only now. Copy it before leaving this page.</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <KeyRound className="h-5 w-5 text-brand" aria-hidden />
                   <span className="font-mono text-2xl font-semibold tracking-widest text-ink">{issued}</span>

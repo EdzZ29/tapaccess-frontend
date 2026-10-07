@@ -163,7 +163,7 @@ interface HeroAction {
  * The two big header buttons: the card's first custom buttons, topped up
  * with Call and Facebook when there are fewer than two, so every card leads
  * with clear actions like "Call to Book / Visit Facebook". A call button is
- * always highlighted and placed first — it's the action that books clients.
+ * always highlighted and placed first, it's the action that books clients.
  */
 function heroActions(profile: PublicProfile): HeroAction[] {
   const actions: HeroAction[] = hasSection(profile, "actions")
@@ -222,7 +222,7 @@ function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean
   );
 }
 
-/** Short facts under the CTAs — like the "Established / Clinic / Contact" row. */
+/** Short facts under the CTAs, like the "Established / Clinic / Contact" row. */
 function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; muted: string; onPhoto: boolean; centered: boolean }) {
   const hydrated = useHydrated();
   const c = profile.contact;

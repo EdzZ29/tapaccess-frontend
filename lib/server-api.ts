@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { envUrl } from "./env-url";
 import { SITE_URL } from "./utils";
-import type { PublicProfile } from "./types";
+import type { FeaturedCard, PublicProfile } from "./types";
 
 const API_URL = envUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000");
 const SLUG = /^[a-z0-9-]{1,64}$/;
@@ -66,6 +66,29 @@ export const getPublicProfile = cache(async (slug: string): Promise<ProfileResul
   if (res.status === 403) return { kind: "unavailable" };
   return { kind: "error", status: res.status };
 });
+
+/** Cache tag for the homepage's "Businesses on TapAccess" list. */
+export const FEATURED_TAG = "featured-cards";
+
+/**
+ * Businesses the admin chose to show on the homepage. Cached like the cards;
+ * any card change from the dashboard refreshes it. Never throws: on failure
+ * the homepage simply leaves the section out.
+ */
+export async function getFeaturedCards(): Promise<FeaturedCard[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/public/cards`, {
+      headers: apiHeaders("application/json"),
+      next: { revalidate: 300, tags: [FEATURED_TAG] },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!res.ok) return [];
+    const body: unknown = await res.json();
+    return Array.isArray(body) ? (body as FeaturedCard[]).filter((c) => SLUG.test(c.slug)) : [];
+  } catch {
+    return [];
+  }
+}
 
 export interface CachedVCard {
   body: string;

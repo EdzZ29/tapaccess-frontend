@@ -97,11 +97,11 @@ function ContactSetup({ card, url }: { card: CardDetail; url: string }) {
     <div className="space-y-5">
       <Tradeoffs>
         <li>
-          <strong className="text-ink">Android only.</strong> iPhones ignore contact records when a card is tapped — they only open links and
+          <strong className="text-ink">Android only.</strong> iPhones ignore contact records when a card is tapped: they only open links and
           phone numbers. iPhone owners get nothing, so use <em>Profile</em> (set to open on Save contact) if the client’s customers use iPhones.
         </li>
         <li>No profile page, and visits and clicks aren’t counted.</li>
-        <li>The details are copied onto the chip. After editing the profile, write the card again — so don’t lock it.</li>
+        <li>The details are copied onto the chip. After editing the profile, write the card again, so don’t lock it.</li>
       </Tradeoffs>
 
       {!hasContact && (
@@ -157,7 +157,7 @@ function CallSetup({ card }: { card: CardDetail }) {
       <Tradeoffs>
         <li>Works on iPhone (it shows a “Call …” notification) and Android (it opens the dialer). The visitor taps Call.</li>
         <li>No profile page, and visits and clicks aren’t counted.</li>
-        <li>If the number changes, write the card again — so don’t lock it.</li>
+        <li>If the number changes, write the card again, so don’t lock it.</li>
       </Tradeoffs>
 
       <div className="rounded-lg border border-line bg-surface-2 p-3">

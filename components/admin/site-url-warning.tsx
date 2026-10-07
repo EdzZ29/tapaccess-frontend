@@ -17,8 +17,8 @@ function useCurrentOrigin(): string | null {
 
 /**
  * Card links (and the URL written to NFC tags) come from NEXT_PUBLIC_SITE_URL.
- * If that differs from the address the admin is using — e.g. the Vercel
- * project was renamed — every copied link would point at the wrong site, and
+ * If that differs from the address the admin is using, e.g. the Vercel
+ * project was renamed, every copied link would point at the wrong site, and
  * tags written with it can't be fixed later. Say so loudly.
  */
 export function SiteUrlWarning({ compact = false }: { compact?: boolean }) {

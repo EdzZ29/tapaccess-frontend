@@ -163,7 +163,7 @@ function SignIn({
           Sign in
         </Button>
       </form>
-      <p className="mt-5 text-xs text-ink-3">Lost your code? Ask TapAccess for a new one — the old one stops working.</p>
+      <p className="mt-5 text-xs text-ink-3">Lost your code? Ask TapAccess for a new one. The old one stops working.</p>
     </div>
   );
 }
@@ -202,7 +202,7 @@ function LinksEditor({
       setDoc(toDoc(saved));
       setBaseline(JSON.stringify(toPayload(toDoc(saved))));
       onSaved(saved);
-      toast.success("Saved — your card is updated");
+      toast.success("Saved. Your card is updated");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         onSignedOut(err.message);

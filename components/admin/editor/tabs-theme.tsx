@@ -62,7 +62,7 @@ export function ThemeTab({
   onUpgrade: () => void;
 }) {
   const presets = (
-    <EditorCard title="Presets" description="A starting point — every colour stays editable below.">
+    <EditorCard title="Presets" description="A starting point. Every colour stays editable below.">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
         {THEME_PRESETS.map((p) => {
           const active = p.theme.primaryColor === theme.primaryColor && p.theme.backgroundColor === theme.backgroundColor;

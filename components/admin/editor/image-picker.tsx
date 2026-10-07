@@ -23,7 +23,7 @@ const MAX_EDGE = 2560;
 
 /**
  * Resizes a large photo in the browser before upload. The API re-encodes
- * every image to ≤1920 px WebP anyway, so nothing visible is lost — this only
+ * every image to ≤1920 px WebP anyway, so nothing visible is lost, this only
  * keeps the request small enough for the hosting platform. Returns the
  * original file when it's already small or can't be decoded here.
  */
@@ -70,18 +70,18 @@ export async function uploadImage(file: File, kind: MediaKind, cardId: string): 
   const name = file.name.length > 40 ? `${file.name.slice(0, 37)}…` : file.name;
   if (/^image\/hei[cf]/.test(file.type) || /\.(heic|heif)$/i.test(file.name)) {
     throw new Error(
-      `"${name}" is a HEIC photo (the iPhone camera default), which browsers can't use. Export it as JPEG — or on the iPhone set Settings → Camera → Formats → Most Compatible.`,
+      `"${name}" is a HEIC photo (the iPhone camera default), which browsers can't use. Export it as JPEG, or on the iPhone set Settings → Camera → Formats → Most Compatible.`,
     );
   }
   if (/svg/.test(file.type) || /\.svg$/i.test(file.name)) {
-    throw new Error(`"${name}" is an SVG. SVG files can carry scripts, so they aren't accepted — export the logo as PNG instead.`);
+    throw new Error(`"${name}" is an SVG. SVG files can carry scripts, so they aren't accepted. Export the logo as PNG instead.`);
   }
   if (!ACCEPT.split(",").includes(file.type)) {
     throw new Error(`"${name}" isn't a supported image${file.type ? ` (${file.type})` : ""}. Use ${FORMATS}.`);
   }
   if (file.size === 0) throw new Error(`"${name}" is empty (0 bytes). Choose another image.`);
   if (file.size > MAX_PICK_MB * 1024 * 1024) {
-    throw new Error(`"${name}" is ${mb(file.size)}. The limit is ${MAX_PICK_MB} MB — choose a smaller photo.`);
+    throw new Error(`"${name}" is ${mb(file.size)}. The limit is ${MAX_PICK_MB} MB. Choose a smaller photo.`);
   }
 
   const upload = await shrinkIfLarge(file);
@@ -242,7 +242,7 @@ export function ImagePicker({
         </div>
       </div>
       <p className="text-xs text-ink-3">
-        {IMAGE_GUIDE[kind].hint} {FORMATS}, up to {MAX_PICK_MB} MB — large photos are resized automatically.
+        {IMAGE_GUIDE[kind].hint} {FORMATS}, up to {MAX_PICK_MB} MB. Large photos are resized automatically.
         {hint && <> {hint}</>}
       </p>
       {storage?.problem && (

@@ -206,7 +206,7 @@ export function TimeSeriesChart({
 }
 
 /**
- * Horizontal bars for a ranked breakdown (one hue — it is magnitude, not
+ * Horizontal bars for a ranked breakdown (one hue, it is magnitude, not
  * identity). Values sit at the bar tip; hovering a row shows its share.
  */
 export function BarList({

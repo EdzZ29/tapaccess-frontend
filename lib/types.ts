@@ -154,6 +154,8 @@ export interface CardSummary {
   slugForwards: boolean;
   firstActivatedAt: string | null;
   archivedAt: string | null;
+  /** Shown in "Businesses on TapAccess" on the homepage. */
+  featured: boolean;
   /** Business cards: the owner may edit their own buttons and social links. */
   ownerAccess: { enabled: boolean; active: boolean; codeSetAt: string | null; lastEditAt: string | null };
   createdAt: string;
@@ -299,4 +301,13 @@ export interface OwnerCard {
   lastEditAt: string | null;
   buttons: CardButton[];
   socialLinks: SocialLink[];
+}
+
+/** A business shown on the homepage (only what its card shows publicly). */
+export interface FeaturedCard {
+  slug: string;
+  businessName: string;
+  category: string | null;
+  logoUrl: string | null;
+  color: string;
 }

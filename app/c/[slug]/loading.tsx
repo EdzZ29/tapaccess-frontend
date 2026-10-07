@@ -54,7 +54,7 @@ export default function Loading() {
           {/* Only seen when a card opens for the first time while the server wakes up. */}
           <div className="grid pb-3 text-center text-sm text-neutral-500" aria-hidden>
             <p className="load-note-1 [grid-area:1/1]">Opening the card…</p>
-            <p className="load-note-2 [grid-area:1/1]">Almost there — the first open takes a few seconds.</p>
+            <p className="load-note-2 [grid-area:1/1]">Almost there. The first open takes a few seconds.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="skeleton h-[52px] rounded-2xl" />

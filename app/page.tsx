@@ -20,13 +20,16 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand";
 import { accentFont, displayFont } from "@/components/landing/fonts";
+import { BusinessCarousel } from "@/components/landing/business-carousel";
 import { HeroVisual } from "@/components/landing/hero-visual";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PLAN_META } from "@/lib/plans";
+import { getFeaturedCards } from "@/lib/server-api";
+import type { FeaturedCard } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: { absolute: "TapAccess — NFC digital business cards" },
+  title: { absolute: "TapAccess: NFC digital business cards" },
   description:
     "One tap opens your business profile: services, contact details, socials and a one-tap call or save contact. Works on iPhone and Android, no app needed.",
 };
@@ -35,14 +38,16 @@ export const metadata: Metadata = {
  * Root of the domain. Customers never sign in and the dashboard is not
  * linked from here; administrators go to /admin directly.
  */
-export default function Home() {
+export default async function Home() {
   const contact = contactOptions();
+  const businesses = await getFeaturedCards();
   return (
     <div className={cn(displayFont.variable, accentFont.variable, "min-h-dvh bg-canvas text-ink")}>
       <Nav />
       <main>
         <Hero />
         <Highlights />
+        <Businesses items={businesses} />
         <Services />
         <HowItWorks />
         <Packages />
@@ -158,7 +163,7 @@ function Hero() {
             Your business, <Accent>one tap</Accent> away.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-pretty text-ink-2 sm:text-xl">
-            A TapAccess card opens a beautiful page with your services, contact details and socials — and lets customers call you or save your
+            A TapAccess card opens a beautiful page with your services, contact details and socials, and lets customers call you or save your
             number in one tap. No app. Update it any time; the card never needs replacing.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
@@ -184,6 +189,29 @@ function Hero() {
           </ul>
         </div>
         <HeroVisual />
+      </Container>
+    </section>
+  );
+}
+
+/** Businesses the admin chose to feature (hidden until there is at least one). */
+function Businesses({ items }: { items: FeaturedCard[] }) {
+  if (items.length === 0) return null;
+  return (
+    <section id="businesses" className="scroll-mt-20 pt-24 sm:pt-32" aria-labelledby="businesses-title">
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <Eyebrow>Businesses on TapAccess</Eyebrow>
+            <h2 id="businesses-title" className="mt-3 font-display text-[2.1rem] leading-[1.05] font-bold tracking-[-0.035em] text-balance sm:text-5xl">
+              Already <Accent>tapping</Accent> with us.
+            </h2>
+          </div>
+          <p className="text-sm text-ink-2">Tap any card to see it live.</p>
+        </div>
+        <div className="mt-10">
+          <BusinessCarousel items={items} />
+        </div>
       </Container>
     </section>
   );
@@ -223,7 +251,7 @@ function Services() {
     {
       icon: Palette,
       title: "Profile page design",
-      text: "A fast mobile page in your colours and fonts — with your logo, photos, services, prices and opening hours.",
+      text: "A fast mobile page in your colours and fonts, with your logo, photos, services, prices and opening hours.",
     },
     {
       icon: Phone,
@@ -233,7 +261,7 @@ function Services() {
     {
       icon: QrCode,
       title: "QR code backup",
-      text: "Every card comes with a QR code for phones without NFC — perfect for counters, flyers and signage.",
+      text: "Every card comes with a QR code for phones without NFC, perfect for counters, flyers and signage.",
     },
     {
       icon: Wand2,
@@ -243,7 +271,7 @@ function Services() {
     {
       icon: BarChart3,
       title: "Visit insights",
-      text: "See how many people opened your page and which buttons they used — without tracking who they are.",
+      text: "See how many people opened your page and which buttons they used, without tracking who they are.",
     },
   ];
   return (
@@ -276,7 +304,7 @@ function Services() {
 
 function HowItWorks() {
   const steps = [
-    { title: "Tell us about your business", text: "Send your logo, services, contact details and socials — or just the basics." },
+    { title: "Tell us about your business", text: "Send your logo, services, contact details and socials, or just the basics." },
     { title: "We design and program", text: "We build your page, write it to your card and test it on iPhone and Android." },
     { title: "Tap, share, grow", text: "Customers tap your card to call you, save your contact or follow you." },
   ];
@@ -369,7 +397,7 @@ function Packages() {
 function About() {
   const values = [
     { title: "Privacy first", text: "No ads, no tracking cookies, and the people who tap your card are never identified or shared." },
-    { title: "Made to just work", text: "Plain web pages that open instantly on any phone — no app, no account, no learning curve." },
+    { title: "Made to just work", text: "Plain web pages that open instantly on any phone. No app, no account, no learning curve." },
     { title: "Done for you", text: "We set everything up and keep it current, so you can focus on your customers." },
   ];
   return (
@@ -419,11 +447,11 @@ function Faq() {
     },
     {
       q: "Does it work on iPhone?",
-      a: "Yes. iPhone XS and newer read the card automatically when unlocked — just hold it near the top of the phone. Android phones with NFC turned on work the same way.",
+      a: "Yes. iPhone XS and newer read the card automatically when unlocked. Just hold it near the top of the phone. Android phones with NFC turned on work the same way.",
     },
     {
       q: "Can I change my details later?",
-      a: "Any time. Your page updates instantly and the card keeps working — it never needs to be replaced or rewritten.",
+      a: "Any time. Your page updates instantly and the card keeps working. It never needs to be replaced or rewritten.",
     },
     {
       q: "Can customers save my number straight away?",
@@ -489,7 +517,7 @@ function Contact({ options }: { options: ContactOption[] }) {
               ))}
             </div>
           ) : (
-            <p className="mt-10 text-canvas/70">Contact details are on their way — check back soon.</p>
+            <p className="mt-10 text-canvas/70">Contact details are on their way. Check back soon.</p>
           )}
         </div>
       </Container>

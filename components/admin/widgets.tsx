@@ -127,7 +127,7 @@ export function CopyButton({ text, label = "Copy", what, size = "sm" }: { text: 
   );
 }
 
-/** QR code for the card URL — a fallback for phones without NFC. */
+/** QR code for the card URL, a fallback for phones without NFC. */
 export function QrCode({ value, fileName }: { value: string; fileName: string }) {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {

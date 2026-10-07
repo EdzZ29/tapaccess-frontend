@@ -62,7 +62,7 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
       setDoc(next);
       setBaseline(JSON.stringify(toPayload(next)));
       onCardChange(updated);
-      toast.success(updated.status === "active" ? "Saved — the live card is updated" : "Saved");
+      toast.success(updated.status === "active" ? "Saved. The live card is updated" : "Saved");
     } catch (err) {
       if (err instanceof ApiError && err.code === "OWNER_EDITED") {
         toast.error("The owner changed their links", {
@@ -248,7 +248,7 @@ function PlanDialog({ card, onClose, onSaved }: { card: CardDetail; onClose: () 
       onClose={onClose}
       size="lg"
       title="Package"
-      description="Changing the package takes effect on the live card immediately. Content is never deleted — hidden features come back if you switch again."
+      description="Changing the package takes effect on the live card immediately. Content is never deleted: hidden features come back if you switch again."
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>

@@ -22,9 +22,9 @@ const apiUrl = normalizeUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_U
 const siteUrl = normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL);
 if (onVercelProduction) {
   const problems: string[] = [];
-  if (!apiUrl) problems.push("API_URL (or NEXT_PUBLIC_API_URL) — your Render API address, e.g. https://tapaccess-backend.onrender.com");
-  if (!siteUrl) problems.push("NEXT_PUBLIC_SITE_URL — this site's address, e.g. https://tapaccess-frontend.vercel.app");
-  if (!process.env.INTERNAL_API_KEY) problems.push("INTERNAL_API_KEY — the same secret value you set on Render");
+  if (!apiUrl) problems.push("API_URL (or NEXT_PUBLIC_API_URL): your Render API address, e.g. https://tapaccess-backend.onrender.com");
+  if (!siteUrl) problems.push("NEXT_PUBLIC_SITE_URL: this site's address, e.g. https://tapaccess-frontend.vercel.app");
+  if (!process.env.INTERNAL_API_KEY) problems.push("INTERNAL_API_KEY: the same secret value you set on Render");
   if (problems.length) {
     throw new Error(
       [

@@ -48,7 +48,7 @@ function strip<T extends { _key?: string }>(row: T): Omit<T, "_key"> {
   return copy;
 }
 
-/** Request body for PUT /admin/cards/:id/profile — only fields the API accepts. */
+/** Request body for PUT /admin/cards/:id/profile, only fields the API accepts. */
 export function toPayload(doc: EditorDoc): ProfileDocument {
   return {
     profile: doc.profile,

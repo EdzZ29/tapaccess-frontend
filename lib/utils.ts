@@ -19,7 +19,7 @@ const full = new Intl.NumberFormat("en");
 export const formatCount = (n: number) => (Math.abs(n) >= 10_000 ? compact.format(n) : full.format(n));
 
 export function formatDate(iso: string | null | undefined, opts: Intl.DateTimeFormatOptions = { dateStyle: "medium" }) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Intl.DateTimeFormat(undefined, opts).format(new Date(iso));
 }
 

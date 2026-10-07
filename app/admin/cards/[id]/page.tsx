@@ -31,6 +31,7 @@ import { Field, Input, Textarea } from "@/components/ui/field";
 import { Menu } from "@/components/ui/menu";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Switch } from "@/components/ui/switch";
 import { api, ApiError, errorMessage } from "@/lib/api";
 import { socialLabel } from "@/lib/constants";
 import type { CardAnalytics, CardDetail, CardPlan, SocialPlatform } from "@/lib/types";
@@ -120,6 +121,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
   const [slug, setSlug] = useState(card.slug);
   const [plan, setPlan] = useState<CardPlan>(card.plan);
   const [notes, setNotes] = useState(card.notes ?? "");
+  const [featured, setFeatured] = useState(card.featured);
   const [saving, setSaving] = useState(false);
   const slugChanged = slug !== card.slug;
   const check = useSlugCheck(slugChanged ? slug : "", card.id);
@@ -129,6 +131,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
     setSlug(card.slug);
     setPlan(card.plan);
     setNotes(card.notes ?? "");
+    setFeatured(card.featured);
     setEditing(true);
   }
 
@@ -137,7 +140,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
       const ok = await confirm({
         title: "Switch to the Starter package?",
         description:
-          "The logo, photos, extra sections and social links other than Facebook will be hidden on the public page. The theme stays. Nothing is deleted — switching back restores them.",
+          "The logo, photos, extra sections and social links other than Facebook will be hidden on the public page. The theme stays. Nothing is deleted, and switching back restores them.",
         confirmLabel: "Switch to Starter",
       });
       if (!ok) return;
@@ -158,7 +161,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
     }
     setSaving(true);
     try {
-      const body: Record<string, unknown> = { cardCode, notes: notes || null, plan };
+      const body: Record<string, unknown> = { cardCode, notes: notes || null, plan, featured };
       if (slugChanged) body.slug = slug;
       const updated = await api<CardDetail>(`/admin/cards/${card.id}`, { method: "PATCH", body });
       toast.success("Card details saved");
@@ -190,6 +193,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
         ] as [string, React.ReactNode][])
       : []),
     ["Package", <PlanBadge key="plan" plan={card.plan} />],
+    ["Homepage", card.featured ? "Shown" : "Hidden"],
     ["Status", <StatusBadge key="status" status={card.status} />],
     ["Created", formatDate(card.createdAt, { dateStyle: "medium", timeStyle: "short" })],
     ["First activated", formatDate(card.firstActivatedAt, { dateStyle: "medium", timeStyle: "short" })],
@@ -225,12 +229,18 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
           {slugChanged && card.slugForwards && (
             <p className="rounded-lg bg-brand-soft px-3 py-2 text-xs text-brand-ink">
               This card is live. The old address <span className="font-mono">/c/{card.slug}</span> will keep working and forward to the
-              new one — NFC tags and QR codes don&apos;t need rewriting.
+              new one, so NFC tags and QR codes don&apos;t need rewriting.
             </p>
           )}
           <div className="space-y-2">
             <p className="text-sm font-medium text-ink">Package</p>
             <PlanPicker value={plan} onChange={setPlan} />
+          </div>
+          <div className="space-y-1">
+            <Switch checked={featured} onChange={setFeatured} label="Show on the TapAccess homepage" />
+            <p className="text-xs text-ink-3">
+              Lists this business (name, category and logo) under &quot;Businesses on TapAccess&quot;. Only shown while the card is active.
+            </p>
           </div>
           <Field label="Internal notes" optional>
             {(p) => <Textarea {...p} rows={4} value={notes} maxLength={5000} onChange={(e) => setNotes(e.target.value)} />}
@@ -361,7 +371,7 @@ function AnalyticsSection({ card }: { card: CardDetail }) {
             </Panel>
 
             <Panel>
-              <PanelHeader title="Referrers" description="Where link visits came from — NFC taps have none" />
+              <PanelHeader title="Referrers" description="Where link visits came from. NFC taps have none." />
               <div className="p-5">
                 {data ? (
                   <BarList

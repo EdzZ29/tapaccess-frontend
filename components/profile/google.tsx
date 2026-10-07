@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 
 /**
  * Google review links get Google's own look (white button, the four-colour
- * "G", yellow stars) so visitors recognise them at a glance — like the
+ * "G", yellow stars) so visitors recognise them at a glance, like the
  * social buttons in their brand colours.
  */
 

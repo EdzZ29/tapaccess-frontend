@@ -71,7 +71,7 @@ export function ButtonsTab({
                   <div className="space-y-1.5">
                     <p className="text-sm font-medium text-ink">Link</p>
                     <p className="flex min-h-10 items-center rounded-lg border border-dashed border-line-strong bg-surface-2 px-3 text-sm text-ink-2">
-                      Saves this card&apos;s contact details to the visitor&apos;s phone — set automatically.
+                      Saves this card&apos;s contact details to the visitor&apos;s phone. Set automatically.
                     </p>
                   </div>
                 ) : (

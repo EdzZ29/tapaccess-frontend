@@ -81,7 +81,7 @@ export default function NewCardPage() {
             check={check}
           />
           <p className="-mt-3 text-xs text-ink-3">
-            This becomes the card&apos;s address. You can change it later — once the card is live, the old address keeps forwarding.
+            This becomes the card&apos;s address. You can change it later. Once the card is live, the old address keeps forwarding.
           </p>
 
           <div className="space-y-2">
@@ -108,7 +108,7 @@ export default function NewCardPage() {
             </Field>
           </div>
 
-          <Field label="Internal notes" optional hint="Only visible to admins — never shown on the public page.">
+          <Field label="Internal notes" optional hint="Only visible to admins, never shown on the public page.">
             {(p) => <Textarea {...p} rows={3} maxLength={5000} value={notes} onChange={(e) => setNotes(e.target.value)} />}
           </Field>
         </Panel>

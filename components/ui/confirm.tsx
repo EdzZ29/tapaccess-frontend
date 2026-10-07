@@ -18,7 +18,7 @@ type ConfirmFn = (opts: ConfirmOptions) => Promise<boolean>;
 
 const ConfirmContext = createContext<ConfirmFn | null>(null);
 
-/** `const ok = await confirm({...})` — a promise-based confirmation dialog. */
+/** `const ok = await confirm({...})`, a promise-based confirmation dialog. */
 export function useConfirm(): ConfirmFn {
   const fn = useContext(ConfirmContext);
   if (!fn) throw new Error("useConfirm must be used inside <ConfirmProvider>");

@@ -113,7 +113,7 @@ function TapActionCard({ value: p, onChange }: { value: ProfileFields; onChange:
       </div>
       {effective !== p.tapAction && (
         <p role="status" className="rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning-ink">
-          {p.tapAction === "call" ? "Add a phone number" : "Add a phone number or email"} above — until then a tap shows the profile.
+          {p.tapAction === "call" ? "Add a phone number" : "Add a phone number or email"} above. Until then a tap shows the profile.
         </p>
       )}
     </EditorCard>

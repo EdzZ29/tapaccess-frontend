@@ -49,7 +49,7 @@ function contentSecurityPolicy(nonce: string): string {
 
 export function proxy(request: NextRequest) {
   // Dashboard gate: without a session cookie, go straight to sign-in. Only a
-  // UX shortcut — the API verifies the session on every request.
+  // UX shortcut, the API verifies the session on every request.
   const { pathname, search } = request.nextUrl;
   if (pathname.startsWith("/admin") && !request.cookies.has(SESSION_COOKIE)) {
     const login = new URL("/login", request.url);

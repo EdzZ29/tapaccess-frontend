@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/brand";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: "What TapAccess collects when you open a card — and what it never does.",
+  description: "What TapAccess collects when you open a card, and what it never does.",
 };
 
 /**
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
 
       <Section title="We never">
         <ul className="list-disc space-y-1.5 pl-5">
-          <li>sell, rent or share information about visitors with anyone — including the businesses on the cards;</li>
+          <li>sell, rent or share information about visitors with anyone, including the businesses on the cards;</li>
           <li>use advertising, tracking pixels or social-media trackers, or build a profile of you;</li>
           <li>set cookies or store anything on your device when you view a card;</li>
           <li>store your IP address, your precise location, or any device identifier in our records;</li>

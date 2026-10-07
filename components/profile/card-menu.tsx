@@ -7,8 +7,8 @@ import type { PublicProfile } from "@/lib/types";
 import { useTracking } from "./tracking";
 
 /**
- * The card's top-right menu: Share, and — when the owner may edit this
- * card — "Edit my links". Themed with the card's own colours.
+ * The card's top-right menu: Share, and, when the owner may edit this
+ * card, "Edit my links". Themed with the card's own colours.
  */
 export function CardMenu({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean }) {
   const { preview, track } = useTracking();

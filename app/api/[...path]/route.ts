@@ -1,6 +1,6 @@
 import { revalidateTag } from "next/cache";
 import { after } from "next/server";
-import { cardTag, getCachedVCard, getPublicProfile } from "@/lib/server-api";
+import { cardTag, FEATURED_TAG, getCachedVCard, getPublicProfile } from "@/lib/server-api";
 import { API_URL, crossSiteReason, SLUG_RE, upstreamHeaders } from "@/lib/upstream";
 
 /**
@@ -10,7 +10,7 @@ import { API_URL, crossSiteReason, SLUG_RE, upstreamHeaders } from "@/lib/upstre
  *
  * Why not a plain rewrite: the API used to check the browser's Origin against
  * one configured address, so the dashboard broke (403) whenever the site was
- * opened on another domain — tapaccess.vercel.app vs tapaccess-frontend…,
+ * opened on another domain, tapaccess.vercel.app vs tapaccess-frontend…,
  * preview links, a new custom domain. Here the same-site check happens
  * against whatever host the request actually arrived on, and the request is
  * then forwarded with the internal key and the visitor's IP (so admin rate
@@ -113,6 +113,8 @@ async function currentSlug(id: string, headers: Headers): Promise<string | null>
  */
 function refreshPublicCards(slugs: (string | null)[]) {
   const unique = [...new Set(slugs.filter((s): s is string => !!s && SLUG_RE.test(s)))];
+  // Names, logos, status and the homepage switch all feed the homepage list.
+  revalidateTag(FEATURED_TAG, { expire: 0 });
   for (const slug of unique) revalidateTag(cardTag(slug), { expire: 0 });
   if (unique.length === 0) return;
   // Started now (inside the request, where the data cache is writable),

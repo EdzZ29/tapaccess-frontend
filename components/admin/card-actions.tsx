@@ -59,7 +59,7 @@ export function useCardActions(onChanged: (card?: CardDetail) => void) {
         description: (
           <>
             The profile goes live at <span className="font-mono text-ink">/c/{card.slug}</span>. You can still change the address
-            later — the old one keeps forwarding, so NFC tags and QR codes never need rewriting.
+            later, and the old one keeps forwarding, so NFC tags and QR codes never need rewriting.
           </>
         ),
         confirmLabel: "Activate",
@@ -70,7 +70,7 @@ export function useCardActions(onChanged: (card?: CardDetail) => void) {
       const updated = await api<CardDetail>(`/admin/cards/${card.id}/status`, { method: "PATCH", body: { status } });
       toast.success(
         status === "active"
-          ? "Card activated — the profile is live"
+          ? "Card activated. The profile is live"
           : status === "inactive"
             ? card.status === "archived"
               ? "Card restored as inactive"
