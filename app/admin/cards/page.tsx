@@ -65,7 +65,7 @@ export default function CardsPage() {
     <>
       <PageHeader
         title="Cards"
-        description="Every NFC card you've issued. The slug in each URL is permanent once a card is activated."
+        description="Every NFC card you've issued. Changing a live card's slug keeps its old address forwarding."
         actions={
           <LinkButton href="/admin/cards/new" variant="primary" icon={<Plus className="h-4 w-4" />}>
             New card

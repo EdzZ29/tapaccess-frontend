@@ -35,7 +35,7 @@ export const rowKey = (row: { id?: string; _key?: string }) => row.id ?? row._ke
 
 export function docFromCard(card: CardDetail): EditorDoc {
   return {
-    profile: { ...structuredClone(card.profile), tapAction: card.profile.tapAction ?? "profile" },
+    profile: { ...structuredClone(card.profile), tapAction: card.profile.tapAction ?? "profile", extraPhones: card.profile.extraPhones ?? [] },
     sections: structuredClone(card.sections),
     buttons: structuredClone(card.buttons),
     socialLinks: structuredClone(card.socialLinks),
@@ -75,9 +75,9 @@ export function move<T>(list: T[], index: number, delta: -1 | 1): T[] {
  * Mirrors the API: an automatic call needs a phone number, saving a contact
  * needs something to save. Otherwise the tap simply shows the profile.
  */
-export function effectiveTapAction(p: Pick<ProfileFields, "tapAction" | "phone" | "email" | "whatsapp">): TapAction {
+export function effectiveTapAction(p: Pick<ProfileFields, "tapAction" | "phone" | "email" | "whatsapp" | "extraPhones">): TapAction {
   if (p.tapAction === "call" && !p.phone) return "profile";
-  if (p.tapAction === "save_contact" && !p.phone && !p.email && !p.whatsapp) return "profile";
+  if (p.tapAction === "save_contact" && !p.phone && !p.email && !p.whatsapp && !p.extraPhones?.length) return "profile";
   return p.tapAction ?? "profile";
 }
 
@@ -102,6 +102,7 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
     coverUrl: p.coverUrl,
     contact: {
       phone: p.phone,
+      extraPhones: p.extraPhones.filter((x) => x.label.trim() && x.number.trim()),
       whatsapp: p.whatsapp,
       email: p.email,
       website: p.website ? normalizeLink(p.website) : null,

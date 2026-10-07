@@ -53,13 +53,13 @@ export function useCardActions(onChanged: (card?: CardDetail) => void) {
       });
       if (!ok) return;
     }
-    if (status === "active" && !card.slugLocked) {
+    if (status === "active" && !card.firstActivatedAt) {
       const ok = await confirm({
         title: `Activate ${card.businessName}?`,
         description: (
           <>
-            The profile goes live at <span className="font-mono text-ink">/c/{card.slug}</span>. After the first
-            activation the slug is <strong>locked permanently</strong> so the NFC tag never needs rewriting.
+            The profile goes live at <span className="font-mono text-ink">/c/{card.slug}</span>. You can still change the address
+            later — the old one keeps forwarding, so NFC tags and QR codes never need rewriting.
           </>
         ),
         confirmLabel: "Activate",

@@ -81,7 +81,7 @@ export default function NewCardPage() {
             check={check}
           />
           <p className="-mt-3 text-xs text-ink-3">
-            This becomes the card&apos;s permanent address. You can change it until the card is first activated.
+            This becomes the card&apos;s address. You can change it later — once the card is live, the old address keeps forwarding.
           </p>
 
           <div className="space-y-2">

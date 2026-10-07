@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { BrandLogo } from "@/components/brand";
 import { OwnerEditor } from "@/components/owner/owner-editor";
 import { getPublicProfile } from "@/lib/server-api";
@@ -18,6 +18,7 @@ export default async function OwnerEditPage({ params }: { params: Promise<{ slug
   const { slug } = await params;
   const result = await getPublicProfile(slug);
   if (result.kind === "not-found") notFound();
+  if (result.kind === "moved") permanentRedirect(`/c/${result.slug}/edit`);
 
   if (result.kind !== "ok" || !result.profile.ownerEditing) {
     return (

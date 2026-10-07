@@ -71,6 +71,12 @@ export interface OpeningHoursDay {
 /** What happens the moment someone taps the card and the page opens. */
 export type TapAction = "profile" | "save_contact" | "call";
 
+/** A number besides the main phone, e.g. per mobile network ("Smart", "Globe"). */
+export interface ExtraPhone {
+  label: string;
+  number: string;
+}
+
 export interface ProfileFields {
   businessName: string;
   tagline: string | null;
@@ -79,6 +85,7 @@ export interface ProfileFields {
   logoUrl: string | null;
   coverUrl: string | null;
   phone: string | null;
+  extraPhones: ExtraPhone[];
   whatsapp: string | null;
   email: string | null;
   website: string | null;
@@ -140,7 +147,8 @@ export interface CardSummary {
   category: string | null;
   logoUrl: string | null;
   notes: string | null;
-  slugLocked: boolean;
+  /** Live card: changing the slug keeps the old address forwarding here. */
+  slugForwards: boolean;
   firstActivatedAt: string | null;
   archivedAt: string | null;
   /** Business cards: the owner may edit their own buttons and social links. */
@@ -151,6 +159,8 @@ export interface CardSummary {
 }
 
 export interface CardDetail extends CardSummary {
+  /** Previous addresses that forward to this card. */
+  oldSlugs: string[];
   profile: ProfileFields;
   sections: Section[];
   buttons: CardButton[];
@@ -175,6 +185,7 @@ export interface PublicProfile {
   coverUrl: string | null;
   contact: {
     phone: string | null;
+    extraPhones?: ExtraPhone[];
     whatsapp: string | null;
     email: string | null;
     website: string | null;

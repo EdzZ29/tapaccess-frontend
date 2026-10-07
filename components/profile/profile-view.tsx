@@ -292,14 +292,16 @@ function ActionBar({ profile }: { profile: PublicProfile }) {
   const t = profile.theme;
   const shape = shapeClass(t);
 
-  const primary = c.phone
-    ? { href: telHref(c.phone), label: "Call", icon: <Phone className="h-[18px] w-[18px]" />, trackId: "phone" }
+  // No main phone but extra numbers (e.g. only Smart/Globe): call the first one.
+  const callNumber = c.phone ?? c.extraPhones?.[0]?.number ?? null;
+  const primary = callNumber
+    ? { href: telHref(callNumber), label: "Call", icon: <Phone className="h-[18px] w-[18px]" />, trackId: "phone" }
     : c.whatsapp
       ? { href: whatsappHref(c.whatsapp), label: "WhatsApp", icon: <BrandMark name="whatsapp" className="h-[18px] w-[18px]" />, trackId: "whatsapp" }
       : c.email
         ? { href: `mailto:${c.email}`, label: "Email", icon: <Mail className="h-[18px] w-[18px]" />, trackId: "email" }
         : null;
-  const canSave = Boolean(c.phone || c.email || c.whatsapp);
+  const canSave = Boolean(c.phone || c.email || c.whatsapp || c.extraPhones?.length);
   if (!primary && !canSave) return null;
 
   return (

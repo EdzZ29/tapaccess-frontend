@@ -3,14 +3,12 @@
 import {
   ArrowLeft,
   Eye,
-  Lock,
   MoreHorizontal,
   MousePointerClick,
   Pencil,
   Power,
   Table2,
   TrendingUp,
-  Unlock,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -123,7 +121,7 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
   const [plan, setPlan] = useState<CardPlan>(card.plan);
   const [notes, setNotes] = useState(card.notes ?? "");
   const [saving, setSaving] = useState(false);
-  const slugChanged = !card.slugLocked && slug !== card.slug;
+  const slugChanged = slug !== card.slug;
   const check = useSlugCheck(slugChanged ? slug : "", card.id);
 
   function startEditing() {
@@ -141,6 +139,20 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
         description:
           "The logo, photos, extra sections and social links other than Facebook will be hidden on the public page. The theme stays. Nothing is deleted — switching back restores them.",
         confirmLabel: "Switch to Starter",
+      });
+      if (!ok) return;
+    }
+    if (slugChanged && card.slugForwards) {
+      const ok = await confirm({
+        title: "Change this card's address?",
+        description: (
+          <>
+            The card moves to <span className="font-mono text-ink">/c/{slug}</span>. The old address{" "}
+            <span className="font-mono text-ink">/c/{card.slug}</span> keeps working and forwards there, so NFC tags, QR codes and shared
+            links don&apos;t need changing.
+          </>
+        ),
+        confirmLabel: "Change address",
       });
       if (!ok) return;
     }
@@ -165,13 +177,18 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
       "Slug",
       <span key="slug" className="inline-flex items-center gap-1.5 font-mono">
         {card.slug}
-        {card.slugLocked ? (
-          <Lock className="h-3.5 w-3.5 text-ink-3" aria-label="Locked" />
-        ) : (
-          <Unlock className="h-3.5 w-3.5 text-ink-3" aria-label="Editable until first activation" />
-        )}
       </span>,
     ],
+    ...(card.oldSlugs?.length
+      ? ([
+          [
+            "Old addresses",
+            <span key="old" className="font-mono text-xs text-ink-2" title="These forward to the current address">
+              {card.oldSlugs.join(", ")} → forward here
+            </span>,
+          ],
+        ] as [string, React.ReactNode][])
+      : []),
     ["Package", <PlanBadge key="plan" plan={card.plan} />],
     ["Status", <StatusBadge key="status" status={card.status} />],
     ["Created", formatDate(card.createdAt, { dateStyle: "medium", timeStyle: "short" })],
@@ -204,12 +221,12 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
               />
             )}
           </Field>
-          {card.slugLocked ? (
-            <p className="flex items-start gap-2 rounded-lg bg-surface-2 px-3 py-2 text-xs text-ink-2">
-              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" /> The slug is locked because this card has been activated.
+          <SlugField value={slug} onChange={setSlug} check={slugChanged ? check : { state: "idle", reason: null, ok: true }} />
+          {slugChanged && card.slugForwards && (
+            <p className="rounded-lg bg-brand-soft px-3 py-2 text-xs text-brand-ink">
+              This card is live. The old address <span className="font-mono">/c/{card.slug}</span> will keep working and forward to the
+              new one — NFC tags and QR codes don&apos;t need rewriting.
             </p>
-          ) : (
-            <SlugField value={slug} onChange={setSlug} check={slugChanged ? check : { state: "idle", reason: null, ok: true }} />
           )}
           <div className="space-y-2">
             <p className="text-sm font-medium text-ink">Package</p>

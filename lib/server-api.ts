@@ -9,6 +9,8 @@ const SLUG = /^[a-z0-9-]{1,64}$/;
 
 export type ProfileResult =
   | { kind: "ok"; profile: PublicProfile }
+  /** An old address of a card that has since changed its slug. */
+  | { kind: "moved"; slug: string }
   | { kind: "not-found" }
   | { kind: "unavailable" }
   | { kind: "error"; status: number };
@@ -55,7 +57,11 @@ export const getPublicProfile = cache(async (slug: string): Promise<ProfileResul
     return { kind: "error", status: 503 };
   }
 
-  if (res.ok) return { kind: "ok", profile: (await res.json()) as PublicProfile };
+  if (res.ok) {
+    const body = (await res.json()) as PublicProfile | { movedTo: string };
+    if ("movedTo" in body) return SLUG.test(body.movedTo) ? { kind: "moved", slug: body.movedTo } : { kind: "not-found" };
+    return { kind: "ok", profile: body };
+  }
   if (res.status === 404) return { kind: "not-found" };
   if (res.status === 403) return { kind: "unavailable" };
   return { kind: "error", status: res.status };

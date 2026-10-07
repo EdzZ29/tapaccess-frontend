@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { after } from "next/server";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ProfileView } from "@/components/profile/profile-view";
 import { CardUnavailable } from "@/components/profile/status-pages";
 import { getCachedVCard, getPublicProfile } from "@/lib/server-api";
@@ -45,6 +45,8 @@ export default async function PublicCardPage({ params }: PageProps<"/c/[slug]">)
   const result = await getPublicProfile(slug);
 
   if (result.kind === "not-found") notFound();
+  // An old address (the card's slug changed): NFC tags and links keep working.
+  if (result.kind === "moved") permanentRedirect(`/c/${result.slug}`);
   if (result.kind === "unavailable") return <CardUnavailable />;
   if (result.kind === "error") throw new Error(`Profile request failed with status ${result.status}`);
 

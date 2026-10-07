@@ -1,12 +1,14 @@
 "use client";
 
-import { Copy, MapPin } from "lucide-react";
+import { Copy, MapPin, Plus, Trash2 } from "lucide-react";
+import { useId } from "react";
 import { PlanLock } from "@/components/admin/plan";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { WEEKDAYS } from "@/lib/constants";
 import { PLAN_FEATURES } from "@/lib/plans";
-import type { CardPlan, OpeningHoursDay, ProfileFields, TapAction } from "@/lib/types";
+import type { CardPlan, ExtraPhone, OpeningHoursDay, ProfileFields, TapAction } from "@/lib/types";
 import { cn, mapsSearchUrl } from "@/lib/utils";
 import { EditorCard, TextInput } from "./controls";
 import { ImagePicker } from "./image-picker";
@@ -118,6 +120,77 @@ function TapActionCard({ value: p, onChange }: { value: ProfileFields; onChange:
   );
 }
 
+const MAX_EXTRA_PHONES = 5;
+const PHONE_LABELS = ["Smart", "Globe", "DITO", "TNT", "TM", "Sun", "Landline", "Office", "Mobile", "Viber"];
+
+/**
+ * More numbers besides the main phone, e.g. one per mobile network. Each
+ * shows as its own call row on the card and is saved with Save contact.
+ */
+function ExtraPhones({ value, onChange }: { value: ExtraPhone[]; onChange: (v: ExtraPhone[]) => void }) {
+  const listId = useId();
+  const set = (i: number, patch: Partial<ExtraPhone>) => onChange(value.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const nextLabel = PHONE_LABELS.find((l) => !value.some((x) => x.label === l)) ?? "";
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-ink">More numbers</p>
+          <p className="text-xs text-ink-3">Other networks or a landline. Visitors can call each one, and Save contact keeps them all.</p>
+        </div>
+        <Button
+          size="sm"
+          icon={<Plus className="h-4 w-4" />}
+          disabled={value.length >= MAX_EXTRA_PHONES}
+          onClick={() => onChange([...value, { label: nextLabel, number: "" }])}
+        >
+          Add number
+        </Button>
+      </div>
+      <datalist id={listId}>
+        {PHONE_LABELS.map((l) => (
+          <option key={l} value={l} />
+        ))}
+      </datalist>
+      {value.map((x, i) => (
+        <div key={i} className="flex items-end gap-2">
+          <label className="w-32 shrink-0 space-y-1.5">
+            <span className="text-xs font-medium text-ink-2">Label</span>
+            <Input
+              list={listId}
+              value={x.label}
+              maxLength={30}
+              placeholder="e.g. Smart"
+              aria-invalid={!x.label.trim() || undefined}
+              onChange={(e) => set(i, { label: e.target.value })}
+            />
+          </label>
+          <label className="min-w-0 flex-1 space-y-1.5">
+            <span className="text-xs font-medium text-ink-2">Number</span>
+            <Input
+              type="tel"
+              inputMode="tel"
+              value={x.number}
+              maxLength={32}
+              placeholder="+63 917 123 4567"
+              aria-invalid={!x.number.trim() || undefined}
+              onChange={(e) => set(i, { number: e.target.value })}
+            />
+          </label>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={`Remove ${x.label || "number"}`}
+            onClick={() => onChange(value.filter((_, j) => j !== i))}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<ProfileFields>) {
   const full = PLAN_FEATURES[plan].sections === "all";
   const setDay = (day: number, patch: Partial<OpeningHoursDay>) =>
@@ -140,6 +213,7 @@ export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<Pro
           <TextInput label="Email" value={p.email} onChange={(v) => onChange({ email: v })} type="email" placeholder="hello@business.com" maxLength={254} />
           <TextInput label="Website" value={p.website} onChange={(v) => onChange({ website: v })} placeholder="business.com" maxLength={2048} />
         </div>
+        <ExtraPhones value={p.extraPhones ?? []} onChange={(extraPhones) => onChange({ extraPhones })} />
         <TextInput label="Address" value={p.address} onChange={(v) => onChange({ address: v })} multiline rows={2} maxLength={500} />
         <div className="space-y-1.5">
           <TextInput
