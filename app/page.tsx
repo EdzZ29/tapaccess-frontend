@@ -79,7 +79,8 @@ interface ContactOption {
  */
 function contactOptions(): ContactOption[] {
   const options: ContactOption[] = [];
-  const facebook = process.env.CONTACT_FACEBOOK?.trim();
+  // TapAccess's Facebook page (people message us there); CONTACT_FACEBOOK overrides it.
+  const facebook = (process.env.CONTACT_FACEBOOK || "https://www.facebook.com/profile.php?id=61595379410267").trim();
   if (facebook && /^https:\/\/(www\.|m\.|web\.)?(facebook\.com|fb\.com|fb\.me|m\.me)\/\S+$/i.test(facebook)) {
     options.push({ label: "Message us on Facebook", href: facebook, icon: <BrandMark name="facebook" className="h-5 w-5" />, tone: "facebook" });
   }
