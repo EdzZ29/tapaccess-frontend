@@ -1,8 +1,9 @@
 "use client";
 
-import { KeyRound, Lock, RefreshCw, UserCog } from "lucide-react";
+import { KeyRound, Lock, Power, UserCog } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { CopyButton } from "@/components/admin/widgets";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm";
@@ -13,31 +14,31 @@ import { cardUrl, formatDate } from "@/lib/utils";
 
 /**
  * Business cards: lets the card's owner edit their own CTA buttons and
- * social links with an access code. The code is shown once, right after
- * it's issued; the API keeps only a hash.
+ * social links with an access code. Each card gets one code, made the first
+ * time access is turned on; turning access off and on keeps it, and the
+ * admin can always see it here to give it to the owner again.
  */
 export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChange: (card: CardDetail) => void }) {
   const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
-  const [issued, setIssued] = useState<string | null>(null);
   const access = card.ownerAccess;
   const editUrl = `${cardUrl(card.slug)}/edit`;
+  const codePath = `/admin/cards/${card.id}/owner-access`;
+  const { data: stored, mutate: setStored } = useSWR<{ code: string | null }>(
+    card.plan === "business" && access?.enabled ? codePath : null,
+    (p: string) => api<{ code: string | null }>(p),
+    { revalidateOnFocus: false },
+  );
+  const code = stored?.code ?? null;
 
-  async function issue(again: boolean) {
-    if (again) {
-      const ok = await confirm({
-        title: "Make a new access code?",
-        description: "The current code stops working and the owner is signed out. Give them the new code.",
-        confirmLabel: "Make new code",
-      });
-      if (!ok) return;
-    }
+  /** Turns access on; also makes the card's code when it has none to show. */
+  async function turnOn() {
     setBusy(true);
     try {
-      const { ownerCode, ...updated } = await api<CardDetail & { ownerCode: string }>(`/admin/cards/${card.id}/owner-access`, { method: "POST" });
-      setIssued(ownerCode);
+      const { ownerCode, ...updated } = await api<CardDetail & { ownerCode: string }>(codePath, { method: "POST" });
       onChange(updated);
-      toast.success(again ? "New access code made" : "Owner access is on");
+      void setStored({ code: ownerCode }, { revalidate: false });
+      toast.success("Owner access is on");
     } catch (err) {
       toast.error(errorMessage(err));
     } finally {
@@ -45,18 +46,17 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
     }
   }
 
-  async function revoke() {
+  async function turnOff() {
     const ok = await confirm({
       title: "Turn off owner access?",
-      description: "The owner is signed out and the code stops working. Their buttons and links stay as they are.",
+      description: "The owner is signed out and can't edit until you turn it on again. Their code stays the same.",
       confirmLabel: "Turn off",
       tone: "danger",
     });
     if (!ok) return;
     setBusy(true);
     try {
-      onChange(await api<CardDetail>(`/admin/cards/${card.id}/owner-access`, { method: "DELETE" }));
-      setIssued(null);
+      onChange(await api<CardDetail>(codePath, { method: "DELETE" }));
       toast.success("Owner access is off");
     } catch (err) {
       toast.error(errorMessage(err));
@@ -65,8 +65,8 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
     }
   }
 
-  const message = issued
-    ? `Edit your TapAccess card's buttons and social links:\n${editUrl}\nAccess code: ${issued}\n(Or tap "Edit my links" at the bottom of your card.)`
+  const message = code
+    ? `Edit your TapAccess card's buttons and social links:\n${editUrl}\nAccess code: ${code}\n(Or tap "Edit my links" at the bottom of your card.)`
     : "";
 
   return (
@@ -85,8 +85,10 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
           </p>
         ) : !access?.enabled ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-ink-2">Off. Only you can edit this card.</p>
-            <Button variant="primary" icon={<UserCog className="h-4 w-4" />} loading={busy} onClick={() => void issue(false)}>
+            <p className="text-sm text-ink-2">
+              {access?.codeSetAt ? "Off. Turn it on to let the owner edit again with the same code." : "Off. Only you can edit this card."}
+            </p>
+            <Button variant="primary" icon={<UserCog className="h-4 w-4" />} loading={busy} onClick={() => void turnOn()}>
               Turn on owner access
             </Button>
           </div>
@@ -107,36 +109,37 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
               </div>
             </dl>
 
-            {issued && (
-              <div className="space-y-3 rounded-xl border border-brand/30 bg-brand-soft/40 p-4">
-                <p className="text-sm font-medium text-ink">Give these to the owner. The code is shown only now. Copy it before leaving this page.</p>
+            {!stored ? (
+              <p className="text-sm text-ink-3">Loading the access code…</p>
+            ) : code ? (
+              <div className="space-y-3 rounded-xl border border-line bg-surface-2 p-4">
+                <p className="text-sm font-medium text-ink">Give these to the owner. The code stays the same for this card.</p>
                 <div className="flex flex-wrap items-center gap-3">
                   <KeyRound className="h-5 w-5 text-brand" aria-hidden />
-                  <span className="font-mono text-2xl font-semibold tracking-widest text-ink">{issued}</span>
-                  <CopyButton text={issued} label="Copy code" what="Access code" />
+                  <span className="font-mono text-2xl font-semibold tracking-widest text-ink">{code}</span>
+                  <CopyButton text={code} label="Copy code" what="Access code" />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="break-all font-mono text-ink-2">{editUrl}</span>
+                  <span className="font-mono break-all text-ink-2">{editUrl}</span>
                   <CopyButton text={editUrl} label="Copy link" what="Edit link" />
                 </div>
                 <CopyButton text={message} label="Copy message for the owner" what="Message" />
               </div>
+            ) : (
+              // Codes made before codes were kept viewable were stored only as a hash.
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning-soft p-4">
+                <p className="text-sm text-warning-ink">
+                  This card&apos;s code was made before codes could be shown again. Make a viewable code once; the owner signs in with it from then on.
+                </p>
+                <Button icon={<KeyRound className="h-4 w-4" />} loading={busy} onClick={() => void turnOn()}>
+                  Make a viewable code
+                </Button>
+              </div>
             )}
 
-            <div className="flex flex-wrap gap-2">
-              <Button icon={<RefreshCw className="h-4 w-4" />} loading={busy} onClick={() => void issue(true)}>
-                {issued ? "Make another code" : "New access code"}
-              </Button>
-              <Button variant="danger-ghost" disabled={busy} onClick={() => void revoke()}>
-                Turn off
-              </Button>
-            </div>
-            {!issued && (
-              <p className="text-xs text-ink-3">
-                Codes are stored securely and can&apos;t be shown again. If the owner lost theirs, make a new one. They sign in at{" "}
-                <span className="font-mono">{editUrl}</span> or with &quot;Edit my links&quot; on their card.
-              </p>
-            )}
+            <Button variant="danger-ghost" icon={<Power className="h-4 w-4" />} disabled={busy} onClick={() => void turnOff()}>
+              Turn off
+            </Button>
           </>
         )}
       </div>

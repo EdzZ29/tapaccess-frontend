@@ -162,7 +162,7 @@ function SignIn({
           Sign in
         </Button>
       </form>
-      <p className="mt-5 text-xs text-ink-3">Lost your code? Ask TapAccess for a new one. The old one stops working.</p>
+      <p className="mt-5 text-xs text-ink-3">Lost your code? Ask TapAccess to send it to you again.</p>
     </div>
   );
 }
