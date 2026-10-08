@@ -47,7 +47,7 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
             ))}
           </div>
           <footer className="px-6 pt-6 pb-8 text-center text-xs" style={{ color: "var(--p-muted)" }}>
-            <span className="mx-auto mb-5 block h-px w-16" style={{ background: "linear-gradient(90deg, transparent, var(--p-border), transparent)" }} aria-hidden />
+            <span className="mx-auto mb-5 block h-px w-16" style={{ background: "var(--p-border)" }} aria-hidden />
             Powered by <span className="font-semibold tracking-wide">TapAccess</span>
             {" · "}
             <a href="/privacy" className="underline-offset-2 hover:underline">
@@ -83,20 +83,7 @@ function Hero({ profile }: { profile: PublicProfile }) {
       {photo && (
         <>
           <img src={photo} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" fetchPriority="high" decoding="async" />
-          {/* Darker at the top bar and behind the text, then melting into the page so there is no seam. */}
-          <div
-            className="absolute inset-0 -z-10"
-            style={{
-              background:
-                "linear-gradient(180deg, rgb(0 0 0 / 0.62) 0%, rgb(0 0 0 / 0.5) 38%, rgb(0 0 0 / 0.66) 72%, color-mix(in srgb, var(--p-bg) 92%, transparent) 94%, var(--p-bg) 100%)",
-            }}
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 -z-10"
-            style={{ background: "radial-gradient(120% 70% at 50% 0%, transparent 40%, rgb(0 0 0 / 0.35) 100%)" }}
-            aria-hidden
-          />
+          <div className="absolute inset-0 -z-10 bg-black/60" aria-hidden />
         </>
       )}
 
@@ -108,9 +95,9 @@ function Hero({ profile }: { profile: PublicProfile }) {
             className={cn("p-rise mb-5 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.28em] uppercase", centered && "justify-center")}
             style={{ color: muted }}
           >
-            <span className="h-px w-8" style={{ background: "linear-gradient(90deg, transparent, var(--p-accent))" }} aria-hidden />
+            <span className="h-px w-8" style={{ background: "var(--p-accent)" }} aria-hidden />
             {profile.category}
-            {centered && <span className="h-px w-8" style={{ background: "linear-gradient(90deg, var(--p-accent), transparent)" }} aria-hidden />}
+            {centered && <span className="h-px w-8" style={{ background: "var(--p-accent)" }} aria-hidden />}
           </p>
         )}
 

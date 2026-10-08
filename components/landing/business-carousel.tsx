@@ -5,7 +5,8 @@
 import { BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FeaturedCard } from "@/lib/types";
-import { initials, readableOn } from "@/lib/utils";
+import { Stars } from "@/components/review/stars";
+import { cn, initials, readableOn } from "@/lib/utils";
 
 /**
  * "Businesses on TapAccess": a swipeable row of business cards, each with
@@ -15,6 +16,8 @@ import { initials, readableOn } from "@/lib/utils";
 export function BusinessCarousel({ items }: { items: FeaturedCard[] }) {
   const track = useRef<HTMLUListElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
+  // Wider cards once there are reviews to read; all the same width either way.
+  const reviewed = items.some((b) => b.review);
 
   const update = useCallback(() => {
     const el = track.current;
@@ -44,7 +47,7 @@ export function BusinessCarousel({ items }: { items: FeaturedCard[] }) {
         aria-label="Businesses on TapAccess"
       >
         {items.map((b) => (
-          <li key={b.slug} className="w-44 shrink-0 snap-start">
+          <li key={b.slug} className={cn("shrink-0 snap-start", reviewed ? "w-60" : "w-44")}>
             <div className="flex h-full flex-col items-center rounded-2xl border border-line bg-surface p-4 text-center">
               {b.logoUrl ? (
                 <img
@@ -69,12 +72,25 @@ export function BusinessCarousel({ items }: { items: FeaturedCard[] }) {
                 <BadgeCheck className="h-4 w-4 shrink-0 text-brand" aria-label="Active TapAccess card" />
               </p>
               <p className="mt-0.5 w-full truncate text-sm text-ink-3">{b.category ?? " "}</p>
-              <a
-                href={`/c/${b.slug}`}
-                className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-lg bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
-              >
-                View card
-              </a>
+              {b.review && (
+                <figure className="mt-4 flex w-full flex-col items-center border-t border-line pt-4">
+                  <Stars rating={b.review.rating} />
+                  <blockquote className="mt-2.5 line-clamp-4 text-sm leading-relaxed text-ink-2">&ldquo;{b.review.comment}&rdquo;</blockquote>
+                  <figcaption className="mt-2 w-full truncate text-xs text-ink-3">
+                    <span className="font-medium text-ink">{b.review.authorName}</span>
+                    {b.review.authorRole && ` · ${b.review.authorRole}`}
+                  </figcaption>
+                </figure>
+              )}
+              {/* Pinned to the bottom so the buttons line up, review or not. */}
+              <div className="mt-auto w-full pt-4">
+                <a
+                  href={`/c/${b.slug}`}
+                  className="inline-flex h-9 w-full items-center justify-center rounded-lg bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+                >
+                  View card
+                </a>
+              </div>
             </div>
           </li>
         ))}

@@ -310,4 +310,29 @@ export interface FeaturedCard {
   category: string | null;
   logoUrl: string | null;
   color: string;
+  /** The owner's review of TapAccess, when they left one. */
+  review: PublicReview | null;
+}
+
+/** An owner's review of TapAccess, as the homepage shows it. */
+export interface PublicReview {
+  rating: number;
+  comment: string;
+  authorName: string;
+  authorRole: string | null;
+}
+
+/** What a private review link opens: the business and its current review. */
+export interface ReviewLinkInfo {
+  businessName: string;
+  category: string | null;
+  logoUrl: string | null;
+  color: string;
+  review: PublicReview | null;
+}
+
+/** Admin view of a card's review link and review. */
+export interface AdminCardReview {
+  link: { active: boolean; createdAt: string | null };
+  review: (PublicReview & { hidden: boolean; submittedAt: string | null; updatedAt: string }) | null;
 }

@@ -19,6 +19,7 @@ import useSWR from "swr";
 import { CardAvatar } from "@/components/admin/card-avatar";
 import { NfcSetupPanel } from "@/components/admin/nfc-setup";
 import { OwnerAccessPanel } from "@/components/admin/owner-access";
+import { ReviewLinkPanel } from "@/components/admin/review-link";
 import { useCardActions } from "@/components/admin/card-actions";
 import { BarList, SERIES_LABEL, TimeSeriesChart, type SeriesKey } from "@/components/admin/charts";
 import { PlanBadge, PlanPicker } from "@/components/admin/plan";
@@ -107,6 +108,8 @@ export default function CardDetailPage() {
       </div>
 
       <OwnerAccessPanel card={card} onChange={(c) => void mutate(c, { revalidate: false })} />
+
+      <ReviewLinkPanel card={card} />
 
       <AnalyticsSection card={card} />
       {actions.dialogs}

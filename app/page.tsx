@@ -23,6 +23,7 @@ import { accentFont, displayFont } from "@/components/landing/fonts";
 import { BusinessCarousel } from "@/components/landing/business-carousel";
 import { HeroVisual } from "@/components/landing/hero-visual";
 import { BrandMark } from "@/components/profile/icons";
+import { Stars } from "@/components/review/stars";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PLAN_META } from "@/lib/plans";
 import { getFeaturedCards } from "@/lib/server-api";
@@ -209,6 +210,8 @@ function Hero() {
 /** Businesses the admin chose to feature (hidden until there is at least one). */
 function Businesses({ items }: { items: FeaturedCard[] }) {
   if (items.length === 0) return null;
+  const ratings = items.flatMap((b) => (b.review ? [b.review.rating] : []));
+  const average = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
   return (
     <section id="businesses" className="scroll-mt-20 pt-24 sm:pt-32" aria-labelledby="businesses-title">
       <Container>
@@ -219,7 +222,17 @@ function Businesses({ items }: { items: FeaturedCard[] }) {
               Already <Accent>tapping</Accent> with us.
             </h2>
           </div>
-          <p className="text-sm text-ink-2">Tap any card to see it live.</p>
+          <div className="flex flex-col gap-1.5 sm:items-end">
+            {ratings.length > 0 && (
+              <p className="flex items-center gap-2 text-sm text-ink-2">
+                <Stars rating={average} />
+                <span>
+                  <span className="font-semibold text-ink">{average.toFixed(1)}</span> from {ratings.length} owner review{ratings.length > 1 ? "s" : ""}
+                </span>
+              </p>
+            )}
+            <p className="text-sm text-ink-2">Tap any card to see it live.</p>
+          </div>
         </div>
         <div className="mt-10">
           <BusinessCarousel items={items} />

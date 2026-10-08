@@ -80,6 +80,11 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   for (const cookie of upstream.headers.getSetCookie()) out.append("set-cookie", cookie);
   if (!out.has("cache-control")) out.set("cache-control", "no-store");
 
+  // An owner leaving or updating their review: the homepage shows it at once.
+  if (request.method === "POST" && path[0] === "public" && path[1] === "reviews" && upstream.ok) {
+    revalidateTag(FEATURED_TAG, { expire: 0 });
+  }
+
   if (cardMutation && upstream.ok) {
     // Buffer the (small) JSON reply to learn the card's slug after the change.
     const text = await upstream.text();

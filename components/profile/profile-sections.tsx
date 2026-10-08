@@ -89,7 +89,7 @@ function Block({ title, children }: { title?: string; children: ReactNode }) {
           <h2 className="text-[1.65rem] leading-tight" style={headingStyle}>
             {title}
           </h2>
-          <span className="h-px min-w-6 flex-1" style={{ background: "linear-gradient(90deg, var(--p-border), transparent)" }} aria-hidden />
+          <span className="h-px min-w-6 flex-1" style={{ background: "var(--p-hairline)" }} aria-hidden />
         </div>
       )}
       {children}
@@ -97,12 +97,8 @@ function Block({ title, children }: { title?: string; children: ReactNode }) {
   );
 }
 
-/** Raised card: a faint top-lit gradient, hairline edge and a soft drop shadow. */
-const surface = {
-  background: "linear-gradient(180deg, color-mix(in srgb, var(--p-text) 4%, var(--p-surface)) 0%, var(--p-surface) 60%)",
-  border: "1px solid var(--p-hairline)",
-  boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--p-text) 7%, transparent), 0 24px 48px -32px rgb(0 0 0 / 0.55)",
-} as const;
+/** Plain card: one flat colour and a hairline edge. */
+const surface = { background: "var(--p-surface)", border: "1px solid var(--p-hairline)" } as const;
 
 function Row({
   icon,

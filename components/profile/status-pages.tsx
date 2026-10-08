@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  */
 function StatusPage({ icon: Icon, title, children, action }: { icon: LucideIcon; title: string; children: ReactNode; action?: ReactNode }) {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 px-6 text-slate-900">
+    <main className="flex min-h-dvh items-center justify-center bg-slate-50 px-6 text-slate-900">
       <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-xl ring-1 ring-slate-900/5">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
           <Icon className="h-7 w-7" aria-hidden />

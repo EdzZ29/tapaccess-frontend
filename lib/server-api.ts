@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { envUrl } from "./env-url";
 import { SITE_URL } from "./utils";
-import type { FeaturedCard, PublicProfile } from "./types";
+import type { FeaturedCard, PublicProfile, ReviewLinkInfo } from "./types";
 
 const API_URL = envUrl(process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000");
 const SLUG = /^[a-z0-9-]{1,64}$/;
@@ -117,5 +117,25 @@ export async function getCachedVCard(slug: string): Promise<CachedVCard | null> 
     };
   } catch {
     return null;
+  }
+}
+
+const REVIEW_TOKEN = /^[A-Za-z0-9_-]{32}$/;
+
+export type ReviewLinkResult = { kind: "ok"; info: ReviewLinkInfo } | { kind: "invalid" } | { kind: "error" };
+
+/** What a private review link opens. Never cached: the link can be replaced at any time. */
+export async function getReviewLink(token: string): Promise<ReviewLinkResult> {
+  if (!REVIEW_TOKEN.test(token)) return { kind: "invalid" };
+  try {
+    const res = await fetch(`${API_URL}/api/public/reviews/${token}`, {
+      headers: apiHeaders("application/json"),
+      cache: "no-store",
+      signal: AbortSignal.timeout(55_000),
+    });
+    if (res.ok) return { kind: "ok", info: (await res.json()) as ReviewLinkInfo };
+    return res.status === 404 ? { kind: "invalid" } : { kind: "error" };
+  } catch {
+    return { kind: "error" };
   }
 }
