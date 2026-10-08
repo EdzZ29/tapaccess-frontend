@@ -83,18 +83,26 @@ export function ProfileSection({ section, profile }: { section: Section; profile
 
 function Block({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <section>
+    <section className="p-rise" style={{ animationDelay: "380ms" }}>
       {title && (
-        <h2 className="mb-5 text-[1.65rem] leading-tight" style={headingStyle}>
-          {title}
-        </h2>
+        <div className="mb-5 flex items-center gap-4">
+          <h2 className="text-[1.65rem] leading-tight" style={headingStyle}>
+            {title}
+          </h2>
+          <span className="h-px min-w-6 flex-1" style={{ background: "linear-gradient(90deg, var(--p-border), transparent)" }} aria-hidden />
+        </div>
       )}
       {children}
     </section>
   );
 }
 
-const surface = { background: "var(--p-surface)", border: "1px solid var(--p-hairline)" } as const;
+/** Raised card: a faint top-lit gradient, hairline edge and a soft drop shadow. */
+const surface = {
+  background: "linear-gradient(180deg, color-mix(in srgb, var(--p-text) 4%, var(--p-surface)) 0%, var(--p-surface) 60%)",
+  border: "1px solid var(--p-hairline)",
+  boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--p-text) 7%, transparent), 0 24px 48px -32px rgb(0 0 0 / 0.55)",
+} as const;
 
 function Row({
   icon,
@@ -112,20 +120,30 @@ function Row({
   accent?: boolean;
 }) {
   return (
-    <ActionLink href={href} kind="contact" trackId={trackId} className="flex items-center gap-4 py-4">
+    <ActionLink href={href} kind="contact" trackId={trackId} className="group flex items-center gap-4 py-4 transition-opacity active:opacity-70">
       <span
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-        style={accent ? { background: "var(--p-accent)", color: "var(--p-on-accent)" } : { background: "var(--p-soft)", color: "var(--p-text)" }}
+        style={
+          accent
+            ? { background: "var(--p-accent)", color: "var(--p-on-accent)" }
+            : { background: "var(--p-soft)", color: "var(--p-text)", boxShadow: "inset 0 0 0 1px var(--p-hairline)" }
+        }
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[0.78rem]" style={{ color: "var(--p-muted)" }}>
+        <span className="block text-[0.7rem] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--p-muted)" }}>
           {label}
         </span>
-        <span className="block truncate text-[1rem] font-semibold">{value}</span>
+        <span className="mt-0.5 block truncate text-[1rem] font-semibold tabular-nums">{value}</span>
       </span>
-      <ArrowUpRight className="h-5 w-5 shrink-0" style={{ color: "var(--p-muted)" }} aria-hidden />
+      <span
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+        style={{ background: "var(--p-soft)", color: "var(--p-muted)" }}
+        aria-hidden
+      >
+        <ArrowUpRight className="h-4 w-4" />
+      </span>
     </ActionLink>
   );
 }
@@ -232,7 +250,7 @@ function Social({ profile, title }: { profile: PublicProfile; title: string }) {
             kind="social"
             trackId={s.platform}
             aria-label={label}
-            className="flex h-14 w-full min-w-0 items-center justify-center gap-3 rounded-full px-5 text-[0.95rem] font-semibold shadow-sm transition-transform active:scale-[0.98]"
+            className="flex h-14 w-full min-w-0 items-center justify-center gap-3 rounded-full px-5 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]"
             style={socialButtonStyle(s.platform)}
           >
             <SocialIcon platform={s.platform} className="h-5 w-5 shrink-0" />
@@ -300,7 +318,7 @@ function Location({ profile, title }: { profile: PublicProfile; title: string })
             href={c.mapsUrl ?? mapsSearchUrl(c.address!)}
             kind="contact"
             trackId="directions"
-            className={cn("flex h-12 items-center justify-center gap-2 text-[0.92rem] font-semibold", shapeClass(t))}
+            className={cn("flex h-12 items-center justify-center gap-2 text-[0.92rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(t))}
             style={{ background: "var(--p-primary)", color: "var(--p-on-primary)" }}
           >
             <Navigation className="h-4 w-4" aria-hidden />

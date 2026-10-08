@@ -47,7 +47,8 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
             ))}
           </div>
           <footer className="px-6 pt-6 pb-8 text-center text-xs" style={{ color: "var(--p-muted)" }}>
-            Powered by <span className="font-semibold">TapAccess</span>
+            <span className="mx-auto mb-5 block h-px w-16" style={{ background: "linear-gradient(90deg, transparent, var(--p-border), transparent)" }} aria-hidden />
+            Powered by <span className="font-semibold tracking-wide">TapAccess</span>
             {" · "}
             <a href="/privacy" className="underline-offset-2 hover:underline">
               Privacy
@@ -82,7 +83,20 @@ function Hero({ profile }: { profile: PublicProfile }) {
       {photo && (
         <>
           <img src={photo} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" fetchPriority="high" decoding="async" />
-          <div className="absolute inset-0 -z-10 bg-black/60" aria-hidden />
+          {/* Darker at the top bar and behind the text, then melting into the page so there is no seam. */}
+          <div
+            className="absolute inset-0 -z-10"
+            style={{
+              background:
+                "linear-gradient(180deg, rgb(0 0 0 / 0.62) 0%, rgb(0 0 0 / 0.5) 38%, rgb(0 0 0 / 0.66) 72%, color-mix(in srgb, var(--p-bg) 92%, transparent) 94%, var(--p-bg) 100%)",
+            }}
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 -z-10"
+            style={{ background: "radial-gradient(120% 70% at 50% 0%, transparent 40%, rgb(0 0 0 / 0.35) 100%)" }}
+            aria-hidden
+          />
         </>
       )}
 
@@ -90,31 +104,37 @@ function Hero({ profile }: { profile: PublicProfile }) {
 
       <div className={cn("flex flex-1 flex-col px-6 pt-14 pb-10", centered && "items-center text-center")}>
         {profile.category && (
-          <p className={cn("mb-5 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.22em] uppercase", centered && "justify-center")} style={{ color: muted }}>
-            {!centered && <span className="h-px w-8 bg-current" aria-hidden />}
+          <p
+            className={cn("p-rise mb-5 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.28em] uppercase", centered && "justify-center")}
+            style={{ color: muted }}
+          >
+            <span className="h-px w-8" style={{ background: "linear-gradient(90deg, transparent, var(--p-accent))" }} aria-hidden />
             {profile.category}
+            {centered && <span className="h-px w-8" style={{ background: "linear-gradient(90deg, var(--p-accent), transparent)" }} aria-hidden />}
           </p>
         )}
 
         <h1
-          className="leading-[0.98] text-balance"
+          className="p-rise leading-[0.98] text-balance"
           style={{
             ...headingStyle,
             // Scales with the card width; long names step down so the hero stays a few bold lines.
             fontSize: profile.businessName.length > 30 ? "min(10cqw, 2.9rem)" : "min(13cqw, 3.6rem)",
+            textShadow: photo ? "0 2px 24px rgb(0 0 0 / 0.45)" : undefined,
+            animationDelay: "80ms",
           }}
         >
           {profile.businessName}
         </h1>
 
         {lead && (
-          <p className="mt-5 w-full max-w-[34ch] text-[1.05rem] leading-relaxed text-pretty" style={{ color: muted }}>
+          <p className="p-rise mt-5 w-full max-w-[34ch] text-[1.05rem] leading-relaxed text-pretty" style={{ color: muted, animationDelay: "160ms" }}>
             {lead}
           </p>
         )}
 
         {heroButtons.length > 0 && (
-          <div className={cn("mt-8 grid w-full gap-3", heroButtons.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+          <div className={cn("p-rise mt-8 grid w-full gap-3", heroButtons.length > 1 ? "grid-cols-2" : "grid-cols-1")} style={{ animationDelay: "240ms" }}>
             {heroButtons.map((b, i) => {
               const google = isGoogleReviewLink(b.href, b.label);
               return (
@@ -205,7 +225,14 @@ function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean
     <div className="flex items-center justify-between gap-4 px-6 pt-[max(env(safe-area-inset-top),1.5rem)]">
       <div className="flex min-w-0 items-center gap-3">
         {profile.logoUrl ? (
-          <img src={profile.logoUrl} alt="" width={40} height={40} className="h-10 w-10 shrink-0 rounded-xl object-cover" />
+          <img
+            src={profile.logoUrl}
+            alt=""
+            width={40}
+            height={40}
+            className="h-10 w-10 shrink-0 rounded-xl object-cover"
+            style={{ boxShadow: "0 6px 20px -6px rgb(0 0 0 / 0.5)" }}
+          />
         ) : (
           <span
             aria-hidden
@@ -215,7 +242,7 @@ function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean
             {initials(profile.businessName)}
           </span>
         )}
-        <span className="truncate text-[0.82rem] font-bold tracking-[0.2em] uppercase">{profile.businessName}</span>
+        <span className="truncate text-[0.8rem] font-semibold tracking-[0.24em] uppercase">{profile.businessName}</span>
       </div>
       <CardMenu profile={profile} onPhoto={onPhoto} />
     </div>
@@ -259,12 +286,23 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
 
   return (
     <dl
-      className={cn("mt-10 grid w-full grid-cols-2 gap-x-6 gap-y-5 border-t pt-6", centered ? "text-center" : "text-left")}
-      style={{ borderColor: onPhoto ? "rgba(255,255,255,0.18)" : "var(--p-hairline)" }}
+      className={cn("p-rise mt-8 grid w-full grid-cols-2 gap-x-6 gap-y-5 rounded-2xl border px-5 py-4", centered ? "text-center" : "text-left")}
+      style={
+        onPhoto
+          ? {
+              animationDelay: "320ms",
+              background: "rgb(255 255 255 / 0.07)",
+              borderColor: "rgb(255 255 255 / 0.14)",
+              boxShadow: "inset 0 1px 0 rgb(255 255 255 / 0.1)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+            }
+          : { animationDelay: "320ms", background: "var(--p-soft)", borderColor: "var(--p-hairline)" }
+      }
     >
       {shown.map((f) => (
         <div key={f.key} className="min-w-0">
-          <dt className="text-[0.78rem] font-medium" style={{ color: muted }}>
+          <dt className="text-[0.7rem] font-semibold tracking-[0.16em] uppercase" style={{ color: muted }}>
             {f.label}
           </dt>
           <dd className="mt-1 truncate text-[0.95rem] font-semibold">
@@ -293,14 +331,22 @@ function ActionBar({ profile }: { profile: PublicProfile }) {
 
   return (
     <div
-      className="sticky bottom-0 z-20 border-t px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.875rem)]"
-      style={{ background: "color-mix(in srgb, var(--p-bg) 88%, transparent)", borderColor: "var(--p-hairline)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
+      className="sticky bottom-0 z-20 px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.875rem)]"
+      style={{
+        background: "color-mix(in srgb, var(--p-bg) 82%, transparent)",
+        boxShadow: "0 -1px 0 var(--p-hairline)",
+        backdropFilter: "blur(18px) saturate(140%)",
+        WebkitBackdropFilter: "blur(18px) saturate(140%)",
+      }}
     >
       <ActionLink
         href={vcardHref(slug)}
         kind="contact"
         trackId="vcard"
-        className={cn("flex h-[52px] w-full items-center justify-center gap-2 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(profile.theme))}
+        className={cn(
+          "flex h-[52px] w-full items-center justify-center gap-2 text-[0.95rem] font-semibold tracking-[0.01em] transition-transform active:scale-[0.98]",
+          shapeClass(profile.theme),
+        )}
         style={HIGHLIGHT}
       >
         <UserPlus className="h-[18px] w-[18px]" />

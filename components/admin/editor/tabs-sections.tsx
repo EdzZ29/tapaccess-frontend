@@ -40,6 +40,15 @@ export function SectionsTab({
   const [open, setOpen] = useState<string | null>(null);
   const setSections = (fn: (s: SectionRow[]) => SectionRow[]) => setDoc((d) => ({ ...d, sections: fn(d.sections) }));
   const patch = (i: number, p: Partial<SectionRow>) => setSections((s) => s.map((x, j) => (j === i ? { ...x, ...p } : x)));
+  // Adding a product, photo, offer... to a section that is switched off turns
+  // it on: new item sections start hidden, and content that never appears
+  // reads as a bug to whoever just added it.
+  const setItems = (i: number, items: SectionRow["items"]) => {
+    const s = doc.sections[i];
+    const turnOn = !s.enabled && items.length > s.items.length;
+    patch(i, turnOn ? { items, enabled: true } : { items });
+    if (turnOn) toast.success(`${s.title || SECTION_META[s.type].label} is now shown on the card`);
+  };
   const locked = doc.sections.some((s) => !sectionAllowed(plan, s.type));
 
   return (
@@ -58,6 +67,8 @@ export function SectionsTab({
           const allowed = sectionAllowed(plan, s.type);
           const auto = allowed && sectionAlwaysOn(plan, s.type);
           const expanded = open === s.type && allowed;
+          // Filled in but switched off: the usual reason "my products don't show".
+          const hiddenWithContent = allowed && !auto && !s.enabled && meta.hasItems && s.items.some((it) => it.enabled);
           return (
             <li key={s.type} className={cn("rounded-xl border border-line bg-surface", !allowed && "bg-surface-2")}>
               <div className="flex items-center gap-2 px-3 py-2.5">
@@ -78,7 +89,11 @@ export function SectionsTab({
                       {s.title || meta.label}
                       {meta.hasItems && s.items.length > 0 && <span className="ml-1.5 text-xs font-normal text-ink-3">{s.items.length}</span>}
                     </span>
-                    <span className="block truncate text-xs text-ink-3">{auto ? "Always shown on Starter when filled in" : meta.description}</span>
+                    {hiddenWithContent ? (
+                      <span className="block truncate text-xs font-medium text-warning-ink">Hidden on the card. Switch on to show it</span>
+                    ) : (
+                      <span className="block truncate text-xs text-ink-3">{auto ? "Always shown on Starter when filled in" : meta.description}</span>
+                    )}
                   </span>
                 </button>
                 <Switch
@@ -93,6 +108,16 @@ export function SectionsTab({
               </div>
               {expanded && (
                 <div className="space-y-4 border-t border-line px-4 py-4">
+                  {hiddenWithContent && (
+                    <div className="flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-warning-soft px-3 py-2.5">
+                      <p className="text-sm text-warning-ink">
+                        This section is switched off, so its {meta.itemNoun}s are not on the card.
+                      </p>
+                      <Button size="sm" onClick={() => patch(i, { enabled: true })}>
+                        Show it
+                      </Button>
+                    </div>
+                  )}
                   {meta.defaultTitle !== "" && (
                     <TextInput
                       label="Section heading"
@@ -103,7 +128,7 @@ export function SectionsTab({
                     />
                   )}
                   {meta.hasItems ? (
-                    <ItemsEditor section={s} cardId={cardId} onChange={(items) => patch(i, { items })} />
+                    <ItemsEditor section={s} cardId={cardId} onChange={(items) => setItems(i, items)} />
                   ) : (
                     <p className="text-sm text-ink-3">{meta.description}.</p>
                   )}

@@ -55,7 +55,6 @@ export const HIGHLIGHT: CSSProperties = {
   background: "var(--p-accent)",
   color: "var(--p-on-accent)",
   borderColor: "transparent",
-  boxShadow: "0 10px 30px -12px var(--p-accent)",
 };
 
 export const shapeClass = (t: Theme) =>
