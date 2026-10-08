@@ -24,7 +24,11 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
   const access = card.ownerAccess;
   const editUrl = `${cardUrl(card.slug)}/edit`;
   const codePath = `/admin/cards/${card.id}/owner-access`;
-  const { data: stored, mutate: setStored } = useSWR<{ code: string | null }>(
+  const {
+    data: stored,
+    error: codeError,
+    mutate: setStored,
+  } = useSWR<{ code: string | null }>(
     card.plan === "business" && access?.enabled ? codePath : null,
     (p: string) => api<{ code: string | null }>(p),
     { revalidateOnFocus: false },
@@ -109,7 +113,14 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
               </div>
             </dl>
 
-            {!stored ? (
+            {codeError && !stored ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 p-4">
+                <p className="text-sm text-danger">Couldn&apos;t load the access code. {errorMessage(codeError)}</p>
+                <Button size="sm" onClick={() => void setStored()}>
+                  Try again
+                </Button>
+              </div>
+            ) : !stored ? (
               <p className="text-sm text-ink-3">Loading the access code…</p>
             ) : code ? (
               <div className="space-y-3 rounded-xl border border-line bg-surface-2 p-4">
