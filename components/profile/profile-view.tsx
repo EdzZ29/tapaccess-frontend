@@ -5,7 +5,7 @@
 import { UserPlus } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { PublicProfile, SocialPlatform } from "@/lib/types";
-import { cn, initials, mapsSearchUrl, telHref } from "@/lib/utils";
+import { cn, initials, telHref } from "@/lib/utils";
 import { ActionLink } from "./action-link";
 import { CardMenu } from "./card-menu";
 import { GOOGLE_REVIEW_STYLE, GoogleLogo, isGoogleReviewLink } from "./google";
@@ -239,7 +239,6 @@ function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean
 /** Short facts under the CTAs, like the "Established / Clinic / Contact" row. */
 function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; muted: string; onPhoto: boolean; centered: boolean }) {
   const hydrated = useHydrated();
-  const c = profile.contact;
   const facts: { key: string; label: string; value: ReactNode; href?: string; trackId?: string }[] = [];
 
   if (hasSection(profile, "hours") && profile.openingHours?.length) {
@@ -257,16 +256,8 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
       ),
     });
   }
-  if ((hasSection(profile, "location") || hasSection(profile, "contact")) && c.address) {
-    facts.push({
-      key: "location",
-      label: "Location",
-      value: c.address.split(/\n|,/).slice(0, 2).join(",").trim(),
-      href: c.mapsUrl ?? mapsSearchUrl(c.address),
-      trackId: "directions",
-    });
-  }
-  // Phone, WhatsApp and email are not repeated here: Quick Actions lists them.
+  // The address, phone, WhatsApp and email are not repeated here: the
+  // Location and Quick Actions sections list them.
 
   const shown = facts.slice(0, 4);
   if (shown.length === 0) return null;
