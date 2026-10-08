@@ -149,7 +149,6 @@ function SignIn({
               {...props}
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="K7QP3-MX9RW"
               autoComplete="off"
               autoCapitalize="characters"
               spellCheck={false}
