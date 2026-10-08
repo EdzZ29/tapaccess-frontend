@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 export interface MenuItem {
   label: string;
   icon?: LucideIcon;
+  /** A custom icon element (e.g. a brand logo), shown instead of `icon`. */
+  leading?: ReactNode;
   onSelect: () => void;
   tone?: "danger";
   hidden?: boolean;
@@ -77,7 +79,7 @@ export function Menu({
           role="menu"
           aria-label={label}
           className={cn(
-            "absolute z-30 mt-1 min-w-48 overflow-hidden rounded-lg border border-line bg-surface py-1 shadow-lg",
+            "absolute z-30 mt-1 max-h-[min(24rem,70vh)] min-w-48 overflow-y-auto rounded-lg border border-line bg-surface py-1 shadow-lg",
             align === "end" ? "right-0" : "left-0",
           )}
         >
@@ -100,7 +102,7 @@ export function Menu({
                     : "text-ink hover:bg-surface-2 focus:bg-surface-2",
                 )}
               >
-                {item.icon && <item.icon className="h-4 w-4 shrink-0 opacity-70" aria-hidden />}
+                {item.leading ?? (item.icon && <item.icon className="h-4 w-4 shrink-0 opacity-70" aria-hidden />)}
                 {item.label}
               </button>
             ),

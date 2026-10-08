@@ -7,6 +7,7 @@ import { ButtonIcon, SocialIcon } from "@/components/profile/icons";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input, Select } from "@/components/ui/field";
+import { Menu } from "@/components/ui/menu";
 import { Switch } from "@/components/ui/switch";
 import { BUTTON_ICONS, BUTTON_LABEL_PRESETS, LIMITS, SOCIAL_PLATFORMS, VCARD_ACTION } from "@/lib/constants";
 import { PLAN_FEATURES, socialAllowed } from "@/lib/plans";
@@ -112,17 +113,24 @@ export function ButtonsTab({
         title="Social links"
         description="Shown in the Social Media section."
         actions={
-          <Button
-            size="sm"
-            icon={<Plus className="h-4 w-4" />}
-            disabled={doc.socialLinks.length >= LIMITS.socialLinks || (plan === "starter" && allowedPlatforms.every((p) => usedPlatforms.has(p.value)))}
-            onClick={() => {
-              const platform = allowedPlatforms.find((p) => !usedPlatforms.has(p.value))?.value ?? "other";
-              setSocial((s) => [...s, { _key: newKey(), platform, url: "", label: null, enabled: true }]);
-            }}
-          >
-            Add link
-          </Button>
+          // Pick the network first; its row is added ready for the URL.
+          <Menu
+            label="Add a social link"
+            items={allowedPlatforms.map((p) => {
+              const added = p.value !== "other" && usedPlatforms.has(p.value);
+              return {
+                label: added ? `${p.label} (added)` : p.label,
+                leading: <SocialIcon platform={p.value} className="h-4 w-4 shrink-0" />,
+                disabled: added,
+                onSelect: () => setSocial((s) => [...s, { _key: newKey(), platform: p.value, url: "", label: null, enabled: true }]),
+              };
+            })}
+            trigger={(props) => (
+              <Button size="sm" icon={<Plus className="h-4 w-4" />} disabled={doc.socialLinks.length >= LIMITS.socialLinks} {...props}>
+                Add link
+              </Button>
+            )}
+          />
         }
       >
         {PLAN_FEATURES[plan].socialPlatforms !== "all" && (
