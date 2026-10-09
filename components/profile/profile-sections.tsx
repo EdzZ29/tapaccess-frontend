@@ -176,14 +176,8 @@ function Actions({ profile, title }: { profile: PublicProfile; title: string }) 
               href={resolveButtonHref(b.url, profile.slug)}
               kind="button"
               trackId={b.id}
-              className={cn("flex min-h-16 w-full items-center gap-4 border px-5 py-3 text-left text-[1rem] font-semibold transition-transform active:scale-[0.99]", shapeClass(t))}
-              style={
-                google
-                  ? GOOGLE_REVIEW_STYLE
-                  : b.highlighted || isCallLink(b.url) || t.buttonStyle === "solid"
-                    ? buttonStyle(t, b.highlighted || isCallLink(b.url))
-                    : buttonStyle({ ...t, buttonStyle: "soft" })
-              }
+              className={cn("p-btn flex min-h-16 w-full items-center gap-4 border px-5 py-3 text-left text-[1rem] font-semibold transition-transform active:scale-[0.99]", shapeClass(t))}
+              style={google ? GOOGLE_REVIEW_STYLE : buttonStyle(t, b.highlighted || isCallLink(b.url))}
             >
               {google ? <GoogleLogo className="h-5 w-5 shrink-0" /> : <ButtonIcon name={b.icon} className="h-5 w-5 shrink-0" />}
               <span className="flex-1 text-balance">{b.label}</span>
@@ -246,8 +240,8 @@ function Social({ profile, title }: { profile: PublicProfile; title: string }) {
             kind="social"
             trackId={s.platform}
             aria-label={label}
-            className="flex h-14 w-full min-w-0 items-center justify-center gap-3 rounded-full px-5 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]"
-            style={socialButtonStyle(s.platform)}
+            className={cn("p-btn flex h-14 w-full min-w-0 items-center justify-center gap-3 border px-5 text-[0.95rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(profile.theme))}
+            style={socialButtonStyle(s.platform, profile.theme.buttonStyle)}
           >
             <SocialIcon platform={s.platform} className="h-5 w-5 shrink-0" />
             <span className="truncate">{label}</span>
@@ -266,7 +260,7 @@ function Hours({ profile, title }: { profile: PublicProfile; title: string }) {
   const hydrated = useHydrated();
   const now = hydrated ? new Date() : null;
   const today = now ? weekdayIndex(now) : -1;
-  const status = now ? openStatus(profile.openingHours, now) : null;
+  const status = now ? openStatus(profile.openingHours, now, profile.alwaysOpen) : null;
 
   return (
     <Block title={title}>
@@ -277,18 +271,24 @@ function Hours({ profile, title }: { profile: PublicProfile; title: string }) {
             {status.text}
           </p>
         )}
-        <dl className="space-y-2.5 text-[0.98rem]">
-          {[...profile.openingHours]
-            .sort((a, b) => a.day - b.day)
-            .map((h) => (
-              <div key={h.day} className={cn("flex justify-between gap-4", h.day === today && "font-semibold")}>
-                <dt>{WEEKDAYS[h.day]}</dt>
-                <dd className="tabular-nums" style={{ color: h.day === today ? "var(--p-text)" : "var(--p-muted)" }}>
-                  {h.closed ? "Closed" : `${formatTime(h.open)} – ${formatTime(h.close)}`}
-                </dd>
-              </div>
-            ))}
-        </dl>
+        {profile.alwaysOpen ? (
+          <p className="text-[0.98rem]" style={{ color: "var(--p-muted)" }}>
+            Open 24 hours, 7 days a week
+          </p>
+        ) : (
+          <dl className="space-y-2.5 text-[0.98rem]">
+            {[...profile.openingHours]
+              .sort((a, b) => a.day - b.day)
+              .map((h) => (
+                <div key={h.day} className={cn("flex justify-between gap-4", h.day === today && "font-semibold")}>
+                  <dt>{WEEKDAYS[h.day]}</dt>
+                  <dd className="tabular-nums" style={{ color: h.day === today ? "var(--p-text)" : "var(--p-muted)" }}>
+                    {h.closed ? "Closed" : `${formatTime(h.open)} – ${formatTime(h.close)}`}
+                  </dd>
+                </div>
+              ))}
+          </dl>
+        )}
         {profile.hoursNote && (
           <p className="mt-4 border-t pt-4 text-[0.9rem]" style={{ color: "var(--p-muted)", borderColor: "var(--p-hairline)" }}>
             {profile.hoursNote}
@@ -314,8 +314,8 @@ function Location({ profile, title }: { profile: PublicProfile; title: string })
             href={c.mapsUrl ?? mapsSearchUrl(c.address!)}
             kind="contact"
             trackId="directions"
-            className={cn("flex h-12 items-center justify-center gap-2 text-[0.92rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(t))}
-            style={{ background: "var(--p-primary)", color: "var(--p-on-primary)" }}
+            className={cn("p-btn flex h-12 items-center justify-center gap-2 border text-[0.92rem] font-semibold transition-transform active:scale-[0.98]", shapeClass(t))}
+            style={buttonStyle(t)}
           >
             <Navigation className="h-4 w-4" aria-hidden />
             Directions

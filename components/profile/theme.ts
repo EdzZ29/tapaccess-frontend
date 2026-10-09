@@ -50,13 +50,6 @@ export function backgroundStyle(t: Theme): CSSProperties {
   return { backgroundColor: t.backgroundColor };
 }
 
-/** Accent fill that reads as "the" action, on a photo or on a plain background. */
-export const HIGHLIGHT: CSSProperties = {
-  background: "var(--p-accent)",
-  color: "var(--p-on-accent)",
-  borderColor: "transparent",
-};
-
 export const shapeClass = (t: Theme) =>
   t.buttonShape === "pill" ? "rounded-full" : t.buttonShape === "square" ? "rounded-lg" : "rounded-2xl";
 
@@ -67,9 +60,36 @@ export const headingStyle: CSSProperties = {
   letterSpacing: "var(--p-heading-tracking)",
 };
 
+/**
+ * A button in the chosen style built around one colour: the accent for
+ * highlighted actions or a network's brand colour. Solid fills with it; the
+ * other styles tint or outline with it and colour the icon (via `--btn-icon`,
+ * read by the `p-btn` class) so the label stays in the theme's text colour.
+ */
+export function tintedButton(style: Theme["buttonStyle"], color: string, onColor: string, solid: string = color): CSSProperties {
+  const mix = (pct: number) => `color-mix(in srgb, ${color} ${pct}%, transparent)`;
+  const tint = { color: "var(--p-text)", "--btn-icon": color } as CSSProperties;
+  switch (style) {
+    case "solid":
+      return { background: solid, color: onColor, borderColor: "transparent" };
+    case "soft":
+      return { ...tint, background: `color-mix(in srgb, ${color} 14%, var(--p-surface))`, borderColor: mix(24) };
+    case "outline":
+      return { ...tint, background: "transparent", borderColor: color };
+    case "glass":
+      return {
+        ...tint,
+        background: mix(16),
+        borderColor: mix(40),
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+      };
+  }
+}
+
 /** Inline styles for a call-to-action button in the card's chosen style. */
 export function buttonStyle(t: Theme, highlighted = false): CSSProperties {
-  if (highlighted) return { background: "var(--p-accent)", color: "var(--p-on-accent)", borderColor: "transparent" };
+  if (highlighted) return tintedButton(t.buttonStyle, "var(--p-accent)", "var(--p-on-accent)");
   switch (t.buttonStyle) {
     case "solid":
       return { background: "var(--p-primary)", color: "var(--p-on-primary)", borderColor: "transparent" };

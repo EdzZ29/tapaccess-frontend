@@ -10,7 +10,7 @@ import { ActionLink, saveContact } from "./action-link";
 import { detectDevice } from "./device";
 import { useHydrated } from "./hours";
 import { vcardHref } from "./profile-sections";
-import { backgroundStyle, headingStyle, HIGHLIGHT, shapeClass } from "./theme";
+import { backgroundStyle, buttonStyle, headingStyle, shapeClass } from "./theme";
 import { useTracking } from "./tracking";
 
 const noop = () => () => undefined;
@@ -127,10 +127,10 @@ export function TapSheet({ profile, embedded }: { profile: PublicProfile; embedd
           kind="contact"
           trackId={call ? "phone" : "vcard"}
           className={cn(
-            "mt-10 flex h-16 w-full items-center justify-center gap-3 text-lg font-semibold transition-transform outline-offset-4 active:scale-[0.98]",
+            "p-btn mt-10 flex h-16 w-full items-center border justify-center gap-3 text-lg font-semibold transition-transform outline-offset-4 active:scale-[0.98]",
             shapeClass(t),
           )}
-          style={HIGHLIGHT}
+          style={buttonStyle(t, true)}
         >
           {call ? <Phone className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
           {call ? "Call now" : "Save contact"}

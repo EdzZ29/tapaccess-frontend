@@ -35,7 +35,7 @@ export const rowKey = (row: { id?: string; _key?: string }) => row.id ?? row._ke
 
 export function docFromCard(card: CardDetail): EditorDoc {
   return {
-    profile: { ...structuredClone(card.profile), tapAction: card.profile.tapAction ?? "profile", extraPhones: card.profile.extraPhones ?? [], phoneLabel: card.profile.phoneLabel ?? null },
+    profile: { ...structuredClone(card.profile), tapAction: card.profile.tapAction ?? "profile", extraPhones: card.profile.extraPhones ?? [], phoneLabel: card.profile.phoneLabel ?? null, alwaysOpen: card.profile.alwaysOpen ?? false },
     sections: structuredClone(card.sections),
     buttons: structuredClone(card.buttons),
     socialLinks: structuredClone(card.socialLinks),
@@ -112,6 +112,7 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
       reviewsUrl: p.reviewsUrl ? normalizeLink(p.reviewsUrl) : null,
     },
     openingHours: p.openingHours,
+    alwaysOpen: p.alwaysOpen,
     hoursNote: p.hoursNote,
     theme: p.theme,
     tapAction: effectiveTapAction(p),

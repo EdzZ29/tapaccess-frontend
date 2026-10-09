@@ -14,7 +14,7 @@ import { socialButtonStyle } from "./brand-colors";
 import { ButtonIcon } from "./icons";
 import { HERO_BUTTON_COUNT, heroText, isCallLink, ProfileSection, resolveButtonHref, vcardHref } from "./profile-sections";
 import { TapSheet } from "./tap-sheet";
-import { backgroundStyle, buttonStyle, headingStyle, HIGHLIGHT, shapeClass, themeVars } from "./theme";
+import { backgroundStyle, buttonStyle, headingStyle, shapeClass, themeVars } from "./theme";
 import { TrackingProvider, useTracking } from "./tracking";
 
 interface ProfileViewProps {
@@ -131,14 +131,14 @@ function Hero({ profile }: { profile: PublicProfile }) {
                 kind={b.kind}
                 trackId={b.trackId}
                 className={cn(
-                  "flex min-h-14 items-center justify-center gap-2.5 border px-4 py-3 text-center text-[0.95rem] leading-tight font-semibold transition-transform active:scale-[0.98]",
+                  "p-btn flex min-h-14 items-center justify-center gap-2.5 border px-4 py-3 text-center text-[0.95rem] leading-tight font-semibold transition-transform active:scale-[0.98]",
                   shapeClass(t),
                 )}
                 style={
                   google
                     ? GOOGLE_REVIEW_STYLE
                     : b.kind === "social"
-                      ? socialButtonStyle(b.trackId as SocialPlatform)
+                      ? onPhotoText(socialButtonStyle(b.trackId as SocialPlatform, t.buttonStyle), Boolean(photo), t)
                       : heroButtonStyle(i === 0, Boolean(photo), t, b.highlighted)
                 }
               >
@@ -196,15 +196,40 @@ function heroActions(profile: PublicProfile): HeroAction[] {
   return actions.sort((a, b) => Number(isCallLink(b.href)) - Number(isCallLink(a.href)));
 }
 
+/**
+ * Solid pairs a filled first button with an outlined second one; the other
+ * styles use the chosen look for both. Over a cover photo the buttons switch
+ * to white so they read on any image.
+ */
 function heroButtonStyle(primary: boolean, onPhoto: boolean, t: PublicProfile["theme"], highlighted: boolean): CSSProperties {
-  if (highlighted) return HIGHLIGHT;
+  if (highlighted) return onPhotoText(buttonStyle(t, true), onPhoto, t);
   if (onPhoto) {
-    return primary
-      ? { background: "#ffffff", color: "#111111", borderColor: "transparent" }
-      : { background: "rgba(255,255,255,0.08)", color: "#ffffff", borderColor: "rgba(255,255,255,0.45)", backdropFilter: "blur(10px)" };
+    switch (t.buttonStyle) {
+      case "solid":
+        return primary
+          ? { background: "#ffffff", color: "#111111", borderColor: "transparent" }
+          : { background: "rgba(255,255,255,0.08)", color: "#ffffff", borderColor: "rgba(255,255,255,0.45)", backdropFilter: "blur(10px)" };
+      case "soft":
+        return { background: "rgba(255,255,255,0.92)", color: "#111111", borderColor: "transparent" };
+      case "outline":
+        return { background: "transparent", color: "#ffffff", borderColor: "rgba(255,255,255,0.85)" };
+      case "glass":
+        return {
+          background: "rgba(255,255,255,0.14)",
+          color: "#ffffff",
+          borderColor: "rgba(255,255,255,0.3)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+        };
+    }
   }
-  if (primary) return buttonStyle({ ...t, buttonStyle: "solid" }, highlighted);
+  if (primary || t.buttonStyle !== "solid") return buttonStyle(t);
   return { background: "transparent", color: "var(--p-text)", borderColor: "var(--p-text)" };
+}
+
+/** Outline and glass buttons are see-through, so over a cover photo their label turns white. */
+function onPhotoText(style: CSSProperties, onPhoto: boolean, t: PublicProfile["theme"]): CSSProperties {
+  return onPhoto && (t.buttonStyle === "outline" || t.buttonStyle === "glass") ? { ...style, color: "#ffffff" } : style;
 }
 
 function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean }) {
@@ -242,7 +267,7 @@ function Facts({ profile, muted, onPhoto, centered }: { profile: PublicProfile; 
   const facts: { key: string; label: string; value: ReactNode; href?: string; trackId?: string }[] = [];
 
   if (hasSection(profile, "hours") && profile.openingHours?.length) {
-    const status = hydrated ? openStatus(profile.openingHours, new Date()) : null;
+    const status = hydrated ? openStatus(profile.openingHours, new Date(), profile.alwaysOpen) : null;
     facts.push({
       key: "hours",
       label: "Today",
@@ -322,10 +347,10 @@ function ActionBar({ profile }: { profile: PublicProfile }) {
         kind="contact"
         trackId="vcard"
         className={cn(
-          "flex h-[52px] w-full items-center justify-center gap-2 text-[0.95rem] font-semibold tracking-[0.01em] transition-transform active:scale-[0.98]",
+          "p-btn flex h-[52px] w-full items-center justify-center gap-2 border text-[0.95rem] font-semibold tracking-[0.01em] transition-transform active:scale-[0.98]",
           shapeClass(profile.theme),
         )}
-        style={HIGHLIGHT}
+        style={buttonStyle(profile.theme, true)}
       >
         <UserPlus className="h-[18px] w-[18px]" />
         Save contact

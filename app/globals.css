@@ -259,3 +259,8 @@ dialog::backdrop {
 .p-rise {
   animation: p-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Icons in tinted (non-solid) buttons take the button's colour; see tintedButton. */
+.p-btn > svg {
+  color: var(--btn-icon, currentColor);
+}

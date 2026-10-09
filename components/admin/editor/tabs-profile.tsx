@@ -281,7 +281,7 @@ export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<Pro
         title="Opening hours"
         description="Visitors see today highlighted and whether the business is open now."
         actions={
-          full && (
+          full && !p.alwaysOpen && (
             <Button
               size="sm"
               variant="ghost"
@@ -298,35 +298,38 @@ export function ContactTab({ value: p, onChange, plan, onUpgrade }: TabProps<Pro
       >
         {full ? (
           <>
-            <div className="space-y-2">
-              {[...p.openingHours]
-                .sort((a, b) => a.day - b.day)
-                .map((h) => (
-                  <div key={h.day} className="flex flex-wrap items-center gap-3">
-                    <span className="w-24 text-sm font-medium text-ink">{WEEKDAYS[h.day]}</span>
-                    <Switch size="sm" checked={!h.closed} onChange={(open) => setDay(h.day, { closed: !open })} label={h.closed ? "Closed" : "Open"} />
-                    {!h.closed && (
-                      <span className="flex items-center gap-2">
-                        <input
-                          type="time"
-                          value={h.open}
-                          onChange={(e) => setDay(h.day, { open: e.target.value })}
-                          className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink"
-                          aria-label={`${WEEKDAYS[h.day]} opening time`}
-                        />
-                        <span className="text-ink-3">–</span>
-                        <input
-                          type="time"
-                          value={h.close}
-                          onChange={(e) => setDay(h.day, { close: e.target.value })}
-                          className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink"
-                          aria-label={`${WEEKDAYS[h.day]} closing time`}
-                        />
-                      </span>
-                    )}
-                  </div>
-                ))}
-            </div>
+            <Switch checked={p.alwaysOpen} onChange={(alwaysOpen) => onChange({ alwaysOpen })} label="Always open (24/7)" />
+            {!p.alwaysOpen && (
+              <div className="space-y-2">
+                {[...p.openingHours]
+                  .sort((a, b) => a.day - b.day)
+                  .map((h) => (
+                    <div key={h.day} className="flex flex-wrap items-center gap-3">
+                      <span className="w-24 text-sm font-medium text-ink">{WEEKDAYS[h.day]}</span>
+                      <Switch size="sm" checked={!h.closed} onChange={(open) => setDay(h.day, { closed: !open })} label={h.closed ? "Closed" : "Open"} />
+                      {!h.closed && (
+                        <span className="flex items-center gap-2">
+                          <input
+                            type="time"
+                            value={h.open}
+                            onChange={(e) => setDay(h.day, { open: e.target.value })}
+                            className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink"
+                            aria-label={`${WEEKDAYS[h.day]} opening time`}
+                          />
+                          <span className="text-ink-3">–</span>
+                          <input
+                            type="time"
+                            value={h.close}
+                            onChange={(e) => setDay(h.day, { close: e.target.value })}
+                            className="h-9 rounded-lg border border-line bg-surface px-2 text-sm text-ink"
+                            aria-label={`${WEEKDAYS[h.day]} closing time`}
+                          />
+                        </span>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
             <TextInput label="Note" value={p.hoursNote} onChange={(v) => onChange({ hoursNote: v })} maxLength={200} placeholder="e.g. Closed on public holidays" />
           </>
         ) : (

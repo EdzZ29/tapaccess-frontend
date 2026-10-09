@@ -24,7 +24,8 @@ export const weekdayIndex = (d: Date) => (d.getDay() + 6) % 7;
  * Open/closed right now, in the visitor's local time. NFC cards are tapped in
  * person, so the visitor's clock is the business's clock in practice.
  */
-export function openStatus(hours: OpeningHoursDay[], now: Date): { open: boolean; text: string } | null {
+export function openStatus(hours: OpeningHoursDay[], now: Date, alwaysOpen = false): { open: boolean; text: string } | null {
+  if (alwaysOpen) return { open: true, text: "Open 24 hours" };
   const today = hours.find((h) => h.day === weekdayIndex(now));
   if (!today) return null;
   const mins = now.getHours() * 60 + now.getMinutes();

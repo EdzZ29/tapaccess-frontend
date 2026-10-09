@@ -131,6 +131,7 @@ export const SOCIAL_PLATFORMS:{ value: SocialPlatform; label: string; placeholde
   { value: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/company/yourbusiness" },
   { value: "whatsapp", label: "WhatsApp", placeholder: "https://wa.me/15551234567" },
   { value: "telegram", label: "Telegram", placeholder: "https://t.me/yourbusiness" },
+  { value: "messenger", label: "Messenger", placeholder: "https://m.me/yourbusiness" },
   { value: "pinterest", label: "Pinterest", placeholder: "https://pinterest.com/yourbusiness" },
   { value: "threads", label: "Threads", placeholder: "https://threads.net/@yourbusiness" },
   { value: "google_reviews", label: "Google Reviews", placeholder: "https://g.page/r/…/review" },

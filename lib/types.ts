@@ -25,6 +25,7 @@ export type SocialPlatform =
   | "linkedin"
   | "whatsapp"
   | "telegram"
+  | "messenger"
   | "pinterest"
   | "threads"
   | "google_reviews"
@@ -96,6 +97,8 @@ export interface ProfileFields {
   mapsUrl: string | null;
   reviewsUrl: string | null;
   openingHours: OpeningHoursDay[];
+  /** Open 24/7: the weekly hours are kept but not shown. */
+  alwaysOpen: boolean;
   hoursNote: string | null;
   theme: Theme;
   tapAction: TapAction;
@@ -200,6 +203,7 @@ export interface PublicProfile {
     reviewsUrl: string | null;
   };
   openingHours: OpeningHoursDay[];
+  alwaysOpen?: boolean;
   hoursNote: string | null;
   theme: Theme;
   /** Already falls back to "profile" (API side) when the card can't do it. */
