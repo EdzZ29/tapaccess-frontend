@@ -60,7 +60,7 @@ export interface Theme {
   fontBody: ThemeFont;
   buttonStyle: "solid" | "soft" | "outline" | "glass";
   buttonShape: "rounded" | "pill" | "square";
-  layout: "classic" | "centered" | "minimal";
+  layout: "classic" | "centered" | "minimal" | "personal";
 }
 
 export interface OpeningHoursDay {

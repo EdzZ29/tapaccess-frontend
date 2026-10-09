@@ -36,6 +36,7 @@ export const LAYOUTS: { value: Theme["layout"]; label: string; description: stri
   { value: "classic", label: "Classic", description: "Cover banner, logo on the left" },
   { value: "centered", label: "Centered", description: "Cover banner, everything centered" },
   { value: "minimal", label: "Minimal", description: "No cover, logo first" },
+  { value: "personal", label: "Personal", description: "No cover, big round photo centered" },
 ];
 
 export const BACKGROUND_STYLES: { value: Theme["backgroundStyle"]; label: string }[] = [

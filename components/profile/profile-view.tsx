@@ -66,8 +66,10 @@ export function ProfileView({ profile, mode = "live", trackVisits = true, embedd
 
 function Hero({ profile }: { profile: PublicProfile }) {
   const t = profile.theme;
-  const photo = t.layout !== "minimal" && profile.coverUrl ? profile.coverUrl : null;
-  const centered = t.layout === "centered";
+  // Personal cards lead with the person's photo instead of a cover banner.
+  const personal = t.layout === "personal";
+  const photo = t.layout !== "minimal" && !personal && profile.coverUrl ? profile.coverUrl : null;
+  const centered = t.layout === "centered" || personal;
   const { lead } = heroText(profile);
   const heroButtons = heroActions(profile);
 
@@ -87,10 +89,11 @@ function Hero({ profile }: { profile: PublicProfile }) {
         </>
       )}
 
-      <TopBar profile={profile} onPhoto={Boolean(photo)} />
+      <TopBar profile={profile} onPhoto={Boolean(photo)} brand={!personal} />
 
-      <div className={cn("flex flex-1 flex-col px-6 pt-14 pb-10", centered && "items-center text-center")}>
-        {profile.category && (
+      <div className={cn("flex flex-1 flex-col px-6 pb-10", personal ? "pt-6" : "pt-14", centered && "items-center text-center")}>
+        {personal && <ProfilePicture profile={profile} />}
+        {profile.category && !personal && (
           <p
             className={cn("p-rise mb-5 flex items-center gap-3 text-[0.72rem] font-semibold tracking-[0.28em] uppercase", centered && "justify-center")}
             style={{ color: muted }}
@@ -113,6 +116,12 @@ function Hero({ profile }: { profile: PublicProfile }) {
         >
           {profile.businessName}
         </h1>
+
+        {profile.category && personal && (
+          <p className="p-rise mt-4 text-[0.78rem] font-semibold tracking-[0.24em] uppercase" style={{ color: "var(--p-accent)", animationDelay: "120ms" }}>
+            {profile.category}
+          </p>
+        )}
 
         {lead && (
           <p className="p-rise mt-5 w-full max-w-[34ch] text-[1.05rem] leading-relaxed text-pretty" style={{ color: muted, animationDelay: "160ms" }}>
@@ -186,7 +195,7 @@ function heroActions(profile: PublicProfile): HeroAction[] {
     : [];
   const phone = profile.contact.phone;
   if (actions.length < HERO_BUTTON_COUNT && phone && !actions.some((a) => isCallLink(a.href))) {
-    actions.push({ key: "call", href: telHref(phone), label: "Call to Book", icon: "phone", kind: "contact", trackId: "phone", highlighted: true });
+    actions.push({ key: "call", href: telHref(phone), label: profile.theme.layout === "personal" ? "Call me" : "Call to Book", icon: "phone", kind: "contact", trackId: "phone", highlighted: true });
   }
   const facebook = profile.socialLinks.find((l) => l.platform === "facebook");
   if (actions.length < HERO_BUTTON_COUNT && facebook && !actions.some((a) => a.href === facebook.url)) {
@@ -232,30 +241,65 @@ function onPhotoText(style: CSSProperties, onPhoto: boolean, t: PublicProfile["t
   return onPhoto && (t.buttonStyle === "outline" || t.buttonStyle === "glass") ? { ...style, color: "#ffffff" } : style;
 }
 
-function TopBar({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean }) {
+/** The Personal layout's centrepiece: a large round photo, or initials without one. */
+function ProfilePicture({ profile }: { profile: PublicProfile }) {
+  const ring: CSSProperties = { boxShadow: "0 0 0 4px var(--p-surface), 0 0 0 5px var(--p-border), 0 18px 40px -16px rgb(0 0 0 / 0.45)" };
+  return (
+    <div className="p-rise mb-7">
+      {profile.logoUrl ? (
+        <img
+          src={profile.logoUrl}
+          alt={profile.businessName}
+          width={144}
+          height={144}
+          className="h-36 w-36 rounded-full object-cover"
+          style={ring}
+          fetchPriority="high"
+          decoding="async"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="flex h-36 w-36 items-center justify-center rounded-full text-[2.6rem] font-bold"
+          style={{ ...ring, ...headingStyle, background: "var(--p-primary)", color: "var(--p-on-primary)" }}
+        >
+          {initials(profile.businessName)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Logo and name on the left, the card menu on the right. `brand={false}` keeps only the menu. */
+function TopBar({ profile, onPhoto, brand = true }: { profile: PublicProfile; onPhoto: boolean; brand?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-4 px-6 pt-[max(env(safe-area-inset-top),1.5rem)]">
-      <div className="flex min-w-0 items-center gap-3">
-        {profile.logoUrl ? (
-          <img
-            src={profile.logoUrl}
-            alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 shrink-0 rounded-xl object-cover"
-            style={{ boxShadow: "0 6px 20px -6px rgb(0 0 0 / 0.5)" }}
-          />
-        ) : (
-          <span
-            aria-hidden
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
-            style={onPhoto ? { background: "#ffffff", color: "#111111" } : { background: "var(--p-primary)", color: "var(--p-on-primary)" }}
-          >
-            {initials(profile.businessName)}
-          </span>
-        )}
-        <span className="truncate text-[0.8rem] font-semibold tracking-[0.24em] uppercase">{profile.businessName}</span>
-      </div>
+      {brand ? (
+        <div className="flex min-w-0 items-center gap-3">
+          {profile.logoUrl ? (
+            <img
+              src={profile.logoUrl}
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 rounded-xl object-cover"
+              style={{ boxShadow: "0 6px 20px -6px rgb(0 0 0 / 0.5)" }}
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+              style={onPhoto ? { background: "#ffffff", color: "#111111" } : { background: "var(--p-primary)", color: "var(--p-on-primary)" }}
+            >
+              {initials(profile.businessName)}
+            </span>
+          )}
+          <span className="truncate text-[0.8rem] font-semibold tracking-[0.24em] uppercase">{profile.businessName}</span>
+        </div>
+      ) : (
+        // Keeps the menu on the right.
+        <span aria-hidden />
+      )}
       <CardMenu profile={profile} onPhoto={onPhoto} />
     </div>
   );

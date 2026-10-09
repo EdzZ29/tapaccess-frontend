@@ -24,19 +24,27 @@ export interface TabProps<T> {
 
 export function ProfileTab({ value: p, onChange, cardId, plan, onUpgrade }: TabProps<ProfileFields>) {
   const images = PLAN_FEATURES[plan].images;
+  // The Personal layout is for a person, so the fields are named for one.
+  const personal = p.theme.layout === "personal";
   return (
     <div className="space-y-4">
-      <EditorCard title="Business">
-        <TextInput label="Business name" value={p.businessName} onChange={(v) => onChange({ businessName: v ?? "" })} maxLength={120} />
+      <EditorCard title={personal ? "Personal" : "Business"}>
+        <TextInput label={personal ? "Name" : "Business name"} value={p.businessName} onChange={(v) => onChange({ businessName: v ?? "" })} maxLength={120} />
         <TextInput
           label="Short description"
           value={p.tagline}
           onChange={(v) => onChange({ tagline: v })}
           maxLength={160}
-          placeholder="e.g. Licensed plumber · same-day call-outs"
-          hint="Shown under the business name at the top of the card."
+          placeholder={personal ? "e.g. Helping families find their first home" : "e.g. Licensed plumber · same-day call-outs"}
+          hint={`Shown under ${personal ? "your" : "the business"} name at the top of the card.`}
         />
-        <TextInput label="Category" value={p.category} onChange={(v) => onChange({ category: v })} maxLength={80} placeholder="e.g. Café, Dental clinic" />
+        <TextInput
+          label={personal ? "Job title" : "Category"}
+          value={p.category}
+          onChange={(v) => onChange({ category: v })}
+          maxLength={80}
+          placeholder={personal ? "e.g. Real estate agent" : "e.g. Café, Dental clinic"}
+        />
         <TextInput
           label="About"
           value={p.description}
@@ -44,27 +52,32 @@ export function ProfileTab({ value: p, onChange, cardId, plan, onUpgrade }: TabP
           multiline
           rows={6}
           maxLength={3000}
-          placeholder="Tell visitors what makes this business special."
+          placeholder={personal ? "Tell visitors a little about yourself." : "Tell visitors what makes this business special."}
         />
       </EditorCard>
 
-      <EditorCard title="Logo & cover" description="Shown at the top of the profile.">
+      <EditorCard
+        title={personal ? "Profile picture" : "Logo & cover"}
+        description={personal ? "Shown large and round in the centre of the card." : "Shown at the top of the profile."}
+      >
         {images ? (
           <>
-            <ImagePicker label="Logo" value={p.logoUrl} onChange={(v) => onChange({ logoUrl: v })} kind="logo" cardId={cardId} />
-            <ImagePicker
-              label="Cover image"
-              value={p.coverUrl}
-              onChange={(v) => onChange({ coverUrl: v })}
-              kind="cover"
-              cardId={cardId}
-              aspect="wide"
-              hint="Hidden with the Minimal layout."
-            />
+            <ImagePicker label={personal ? "Profile picture" : "Logo"} value={p.logoUrl} onChange={(v) => onChange({ logoUrl: v })} kind="logo" cardId={cardId} />
+            {!personal && (
+              <ImagePicker
+                label="Cover image"
+                value={p.coverUrl}
+                onChange={(v) => onChange({ coverUrl: v })}
+                kind="cover"
+                cardId={cardId}
+                aspect="wide"
+                hint="Hidden with the Minimal layout."
+              />
+            )}
           </>
         ) : (
           <PlanLock action={<UpgradeButton onClick={onUpgrade} />}>
-            Logos, cover images and photos are part of the <strong className="text-ink">Business</strong> package. Starter cards show the business initials instead.
+            Logos, cover images and photos are part of the <strong className="text-ink">Business</strong> package. Starter cards show {personal ? "your" : "the business"} initials instead.
           </PlanLock>
         )}
       </EditorCard>
