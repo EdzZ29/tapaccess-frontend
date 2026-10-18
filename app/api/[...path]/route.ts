@@ -52,10 +52,14 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   // they touch (the slug before a rename or delete, and after).
   const cardMutation =
     (!["GET", "HEAD"].includes(request.method) && path[0] === "admin" && path[1] === "cards") ||
-    // A card owner saving their own buttons and social links.
+    // A card owner saving their own card.
     (request.method === "PUT" && path[0] === "owner" && path[1] === "card");
   const cardId = cardMutation && /^[0-9a-f-]{36}$/i.test(path[2] ?? "") ? path[2] : null;
-  const slugBefore = cardId && ["PATCH", "DELETE"].includes(request.method) ? await currentSlug(cardId, headers) : null;
+  // The old slug is only lost on a delete or a rename; every other change
+  // replies with the card, whose slug is then the one to refresh.
+  const slugMayChange =
+    path.length === 3 && (request.method === "DELETE" || (request.method === "PATCH" && bodyHasSlug(body)));
+  const slugBefore = cardId && slugMayChange ? await currentSlug(cardId, headers) : null;
 
   let upstream: Response;
   try {
@@ -99,6 +103,17 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   }
 
   return new Response(request.method === "HEAD" ? null : upstream.body, { status: upstream.status, headers: out });
+}
+
+/** Whether a JSON request body sets `slug` (unreadable bodies count as yes, to be safe). */
+function bodyHasSlug(body: ArrayBuffer | undefined): boolean {
+  if (!body) return false;
+  try {
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(body));
+    return typeof parsed !== "object" || parsed === null || "slug" in parsed;
+  } catch {
+    return true;
+  }
 }
 
 /** The card's current slug, read just before a rename or delete. */

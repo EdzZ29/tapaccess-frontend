@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- thumbnails of our own pre-sized uploads */
 
 import { ImageOff, ImagePlus, Images, Loader2, Trash2, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,25 @@ import { LIMITS } from "@/lib/constants";
 import type { MediaAsset, MediaKind, Paginated } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif";
+export const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif";
+
+/**
+ * Where images go. The admin uploads with a card id and has a library of
+ * every upload; a card's owner uploads through their own session (always to
+ * their own card) and only picks new photos.
+ */
+export interface MediaTarget {
+  uploadPath: string;
+  sendCardId: boolean;
+  library: boolean;
+  statusPath: string | null;
+}
+const ADMIN_MEDIA: MediaTarget = { uploadPath: "/admin/media", sendCardId: true, library: true, statusPath: "/admin/media/status" };
+export const OWNER_MEDIA: MediaTarget = { uploadPath: "/owner/media", sendCardId: false, library: false, statusPath: null };
+
+const MediaTargetContext = createContext<MediaTarget>(ADMIN_MEDIA);
+export const MediaTargetProvider = MediaTargetContext.Provider;
+export const useMediaTarget = () => useContext(MediaTargetContext);
 
 /** Uploads above this are shrunk in the browser first (hosting caps requests at ~4.5 MB). */
 const SHRINK_ABOVE_BYTES = 3.5 * 1024 * 1024;
@@ -66,7 +84,7 @@ const FORMATS = "JPEG, PNG, WebP, GIF or AVIF";
  * Checks the file, shrinks big photos and uploads it. Every failure throws
  * an Error whose message says what went wrong and what to do about it.
  */
-export async function uploadImage(file: File, kind: MediaKind, cardId: string): Promise<MediaAsset> {
+export async function uploadImage(file: File, kind: MediaKind, cardId: string, target: MediaTarget = ADMIN_MEDIA): Promise<MediaAsset> {
   const name = file.name.length > 40 ? `${file.name.slice(0, 37)}…` : file.name;
   if (/^image\/hei[cf]/.test(file.type) || /\.(heic|heif)$/i.test(file.name)) {
     throw new Error(
@@ -97,9 +115,9 @@ export async function uploadImage(file: File, kind: MediaKind, cardId: string): 
   const form = new FormData();
   form.append("file", upload, upload === file ? file.name : file.name.replace(/\.[^.]+$/, "") + (upload.type === "image/webp" ? ".webp" : ".jpg"));
   form.append("kind", kind);
-  form.append("cardId", cardId);
+  if (target.sendCardId) form.append("cardId", cardId);
   try {
-    return await api<MediaAsset>("/admin/media", { method: "POST", body: form });
+    return await api<MediaAsset>(target.uploadPath, { method: "POST", body: form });
   } catch (err) {
     throw new Error(uploadErrorMessage(err));
   }
@@ -161,6 +179,7 @@ export function ImagePicker({
   aspect?: "square" | "wide";
   hint?: string;
 }) {
+  const target = useMediaTarget();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [library, setLibrary] = useState(false);
@@ -168,7 +187,7 @@ export function ImagePicker({
   const [feedback, setFeedback] = useState<{ tone: "error" | "warning"; text: string } | null>(null);
   const [brokenUrl, setBrokenUrl] = useState<string | null>(null);
   // Shared by every picker on the page (SWR de-duplicates the request).
-  const { data: storage } = useSWR<StorageStatus>("/admin/media/status", { revalidateOnFocus: false });
+  const { data: storage } = useSWR<StorageStatus>(target.statusPath, { revalidateOnFocus: false });
   const what = label.toLowerCase();
 
   async function onFile(file: File | undefined) {
@@ -176,7 +195,7 @@ export function ImagePicker({
     setBusy(true);
     setFeedback(null);
     try {
-      const asset = await uploadImage(file, kind, cardId);
+      const asset = await uploadImage(file, kind, cardId, target);
       onChange(asset.url);
       setBrokenUrl(null);
       const note = qualityNote(asset, kind);
@@ -231,9 +250,11 @@ export function ImagePicker({
           <Button size="sm" icon={<Upload className="h-4 w-4" />} onClick={() => input.current?.click()} disabled={busy}>
             Upload
           </Button>
-          <Button size="sm" variant="ghost" icon={<Images className="h-4 w-4" />} onClick={() => setLibrary(true)}>
-            Library
-          </Button>
+          {target.library && (
+            <Button size="sm" variant="ghost" icon={<Images className="h-4 w-4" />} onClick={() => setLibrary(true)}>
+              Library
+            </Button>
+          )}
           {value && (
             <Button size="sm" variant="danger-ghost" icon={<X className="h-4 w-4" />} onClick={() => onChange(null)}>
               Remove
@@ -252,8 +273,14 @@ export function ImagePicker({
       )}
       {value && brokenUrl === value && (
         <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-xs text-danger">
-          This {what} can&apos;t be loaded. If it was just uploaded, the storage bucket may be private (Supabase → Storage → Edit bucket → Public
-          bucket). Otherwise upload it again.
+          {target.library ? (
+            <>
+              This {what} can&apos;t be loaded. If it was just uploaded, the storage bucket may be private (Supabase → Storage → Edit bucket →
+              Public bucket). Otherwise upload it again.
+            </>
+          ) : (
+            <>This {what} can&apos;t be loaded. Upload it again.</>
+          )}
         </p>
       )}
       {feedback && (

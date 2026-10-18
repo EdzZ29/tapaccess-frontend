@@ -26,7 +26,16 @@ export const useAdmin = () => useContext(AdminContext);
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
-    <SWRConfig value={{ fetcher, keepPreviousData: true, revalidateOnFocus: true, shouldRetryOnError: false }}>
+    <SWRConfig
+      value={{
+        fetcher,
+        keepPreviousData: true,
+        revalidateOnFocus: true,
+        // Switching back to the tab refreshes at most every 30 s, not on every switch.
+        focusThrottleInterval: 30_000,
+        shouldRetryOnError: false,
+      }}
+    >
       <ConfirmProvider>
         <Shell>{children}</Shell>
       </ConfirmProvider>

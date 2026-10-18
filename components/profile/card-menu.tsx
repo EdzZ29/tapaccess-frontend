@@ -8,7 +8,7 @@ import { useTracking } from "./tracking";
 
 /**
  * The card's top-right menu: Share, and, when the owner may edit this
- * card, "Edit my links". Themed with the card's own colours.
+ * card, "Edit my card". Themed with the card's own colours.
  */
 export function CardMenu({ profile, onPhoto }: { profile: PublicProfile; onPhoto: boolean }) {
   const { preview, track } = useTracking();
@@ -102,7 +102,7 @@ export function CardMenu({ profile, onPhoto }: { profile: PublicProfile; onPhoto
           {profile.ownerEditing && (
             <a role="menuitem" href={`/c/${profile.slug}/edit`} className={item} onClick={() => setOpen(false)}>
               <Pencil className="h-[18px] w-[18px] shrink-0" aria-hidden />
-              Edit my links
+              Edit my card
             </a>
           )}
         </div>

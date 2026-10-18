@@ -6,6 +6,7 @@ import {
   Mail,
   MessageCircle,
   Palette,
+  PenTool,
   Phone,
   QrCode,
   RefreshCw,
@@ -51,6 +52,7 @@ export default async function Home() {
         <Highlights />
         <Businesses items={businesses} />
         <Services />
+        <CustomCards />
         <HowItWorks />
         <Packages />
         <About />
@@ -104,6 +106,7 @@ function contactOptions(): ContactOption[] {
 
 const NAV = [
   { href: "#services", label: "Services" },
+  { href: "#custom", label: "Custom cards" },
   { href: "#how", label: "How it works" },
   { href: "#packages", label: "Packages" },
   { href: "#about", label: "About" },
@@ -327,6 +330,67 @@ function Services() {
   );
 }
 
+function CustomCards() {
+  const options = [
+    "Your logo, brand colours and artwork",
+    "Front and back designed to match your page",
+    "Your name, title or tagline printed on the card",
+    "Classic black, clean white or fully custom",
+  ];
+  return (
+    <section id="custom" className="scroll-mt-20 pb-24 sm:pb-32" aria-labelledby="custom-title">
+      <Container>
+        <div className="grid items-center gap-12 overflow-hidden rounded-[2rem] border border-line bg-surface p-7 sm:p-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <div>
+            <p className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide text-brand">
+              <PenTool className="h-4 w-4" aria-hidden /> Custom card design
+            </p>
+            <h2 id="custom-title" className="mt-3 font-display text-[2.1rem] leading-[1.05] font-bold tracking-[-0.035em] text-balance sm:text-5xl">
+              A card that looks <Accent>like you</Accent>.
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-pretty text-ink-2">
+              We also customise the card itself. Send us your logo or idea and we&apos;ll design a card that matches your brand, so it gets
+              noticed before it&apos;s even tapped.
+            </p>
+            <ul className="mt-7 space-y-3">
+              {options.map((o) => (
+                <li key={o} className="flex gap-3 text-[0.95rem]">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden />
+                  {o}
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#contact"
+              className="mt-9 inline-flex h-12 items-center gap-2 rounded-full bg-ink px-6 text-[0.95rem] font-semibold text-canvas transition-opacity hover:opacity-85"
+            >
+              Design my card <ArrowRight className="h-4 w-4" aria-hidden />
+            </a>
+          </div>
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-md" aria-hidden>
+            <Image
+              src="/images/tap-white.png"
+              alt=""
+              width={1004}
+              height={638}
+              sizes="(min-width: 1024px) 360px, 75vw"
+              className="absolute top-[6%] left-0 w-[80%] -rotate-6 rounded-2xl shadow-[0_18px_40px_-20px_rgb(15_23_42/0.45)] ring-1 ring-black/5"
+            />
+            <Image
+              src="/images/tap-black.png"
+              alt=""
+              width={1004}
+              height={638}
+              sizes="(min-width: 1024px) 360px, 75vw"
+              className="absolute right-0 bottom-[6%] w-[80%] rotate-3 rounded-2xl shadow-[0_24px_50px_-20px_rgb(15_23_42/0.55)] ring-1 ring-white/10"
+            />
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
 function HowItWorks() {
   const steps = [
     { title: "Tell us about your business", text: "Send your logo, services, contact details and socials, or just the basics." },
@@ -473,6 +537,10 @@ function Faq() {
     {
       q: "Does it work on iPhone?",
       a: "Yes. iPhone XS and newer read the card automatically when unlocked. Just hold it near the top of the phone. Android phones with NFC turned on work the same way.",
+    },
+    {
+      q: "Can you customise the design of the card?",
+      a: "Yes. Besides the page, we design the physical card too: your logo, colours and artwork on the front and back. Message us with your idea.",
     },
     {
       q: "Can I change my details later?",

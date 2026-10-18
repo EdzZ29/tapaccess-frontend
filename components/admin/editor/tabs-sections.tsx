@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, ImagePlus, Lock, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PlanLock } from "@/components/admin/plan";
@@ -11,7 +11,8 @@ import { sectionAllowed, sectionAlwaysOn } from "@/lib/plans";
 import type { CardPlan, SectionItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { RowControls, TextInput } from "./controls";
-import { ImagePicker, uploadImage } from "./image-picker";
+import { GalleryManager } from "./gallery-manager";
+import { ImagePicker } from "./image-picker";
 import { emptyItem, move, rowKey, type EditorDoc, type Keyed } from "./model";
 import { UpgradeButton } from "./tabs-profile";
 
@@ -127,7 +128,25 @@ export function SectionsTab({
                       maxLength={120}
                     />
                   )}
-                  {meta.hasItems ? (
+                  {s.type === "gallery" ? (
+                    <GalleryManager
+                      items={s.items}
+                      cardId={cardId}
+                      update={(fn) =>
+                        setSections((list) =>
+                          list.map((x) => {
+                            if (x.type !== "gallery") return x;
+                            const items = fn(x.items);
+                            // Adding photos to a hidden gallery shows it (see setItems).
+                            return items.length > x.items.length && !x.enabled ? { ...x, items, enabled: true } : { ...x, items };
+                          }),
+                        )
+                      }
+                      onAdded={() => {
+                        if (!s.enabled) toast.success(`${s.title || meta.label} is now shown on the card`);
+                      }}
+                    />
+                  ) : meta.hasItems ? (
                     <ItemsEditor section={s} cardId={cardId} onChange={(items) => setItems(i, items)} />
                   ) : (
                     <p className="text-sm text-ink-3">{meta.description}.</p>
@@ -147,34 +166,7 @@ function ItemsEditor({ section, cardId, onChange }: { section: SectionRow; cardI
   const fields = meta.itemFields ?? [];
   const items = section.items;
   const set = (i: number, p: Partial<SectionItem>) => onChange(items.map((x, j) => (j === i ? { ...x, ...p } : x)));
-  const isGallery = section.type === "gallery";
-  const [uploading, setUploading] = useState(false);
   const full = items.length >= LIMITS.itemsPerSection;
-
-  async function addPhotos(files: FileList | null) {
-    if (!files?.length) return;
-    setUploading(true);
-    const added: Keyed<SectionItem>[] = [];
-    const room = LIMITS.itemsPerSection - items.length;
-    if (files.length > room) {
-      toast.warning(`Only ${room} more photo${room === 1 ? "" : "s"} fit`, {
-        description: `A gallery holds up to ${LIMITS.itemsPerSection} photos, so ${files.length - room} of the ${files.length} selected were skipped.`,
-      });
-    }
-    for (const file of Array.from(files).slice(0, room)) {
-      try {
-        const asset = await uploadImage(file, "gallery", cardId);
-        added.push({ ...emptyItem(), title: file.name.replace(/\.[^.]+$/, "").slice(0, 160) || "Photo", imageUrl: asset.url });
-      } catch (err) {
-        toast.error(`Couldn't add "${file.name}"`, { description: (err as Error).message, duration: 10_000 });
-      }
-    }
-    if (added.length) {
-      onChange([...items, ...added]);
-      toast.success(`${added.length} photo${added.length > 1 ? "s" : ""} added`);
-    }
-    setUploading(false);
-  }
 
   return (
     <div className="space-y-3">
@@ -183,11 +175,11 @@ function ItemsEditor({ section, cardId, onChange }: { section: SectionRow; cardI
           <div className="flex items-start gap-2">
             <TextInput
               className="flex-1"
-              label={isGallery ? "Caption" : "Title"}
+              label="Title"
               value={item.title}
               onChange={(v) => set(i, { title: v ?? "" })}
               maxLength={160}
-              placeholder={isGallery ? "Describes the photo for screen readers" : `Name of the ${meta.itemNoun}`}
+              placeholder={`Name of the ${meta.itemNoun}`}
             />
             {fields.includes("price") && (
               <TextInput className="w-32" label="Price" value={item.price} onChange={(v) => set(i, { price: v })} maxLength={40} placeholder="$25" />
@@ -198,10 +190,10 @@ function ItemsEditor({ section, cardId, onChange }: { section: SectionRow; cardI
           )}
           {fields.includes("imageUrl") && (
             <ImagePicker
-              label={isGallery ? "Photo" : "Image"}
+              label="Image"
               value={item.imageUrl}
               onChange={(v) => set(i, { imageUrl: v })}
-              kind={isGallery ? "gallery" : "item"}
+              kind="item"
               cardId={cardId}
               aspect={section.type === "promotions" ? "wide" : "square"}
             />
@@ -255,18 +247,9 @@ function ItemsEditor({ section, cardId, onChange }: { section: SectionRow; cardI
       ))}
 
       <div className="flex flex-wrap gap-2">
-        {isGallery ? (
-          <label className={cn("inline-flex cursor-pointer", (full || uploading) && "pointer-events-none opacity-50")}>
-            <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="sr-only" onChange={(e) => void addPhotos(e.target.files)} />
-            <span className="inline-flex h-8 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink shadow-sm hover:bg-surface-2">
-              <ImagePlus className="h-4 w-4" /> {uploading ? "Uploading…" : "Upload photos"}
-            </span>
-          </label>
-        ) : (
-          <Button size="sm" icon={<Plus className="h-4 w-4" />} disabled={full} onClick={() => onChange([...items, emptyItem()])}>
-            Add {meta.itemNoun}
-          </Button>
-        )}
+        <Button size="sm" icon={<Plus className="h-4 w-4" />} disabled={full} onClick={() => onChange([...items, emptyItem()])}>
+          Add {meta.itemNoun}
+        </Button>
       </div>
     </div>
   );

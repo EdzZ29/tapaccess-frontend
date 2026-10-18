@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Where a card's owner edits their own buttons and social links (Business
- * package, when the admin has switched owner access on). Linked from the
- * "Edit my links" button at the bottom of the card.
+ * Where a card's owner edits their own profile, photos, buttons, links and
+ * theme (Business package, when the admin has switched owner access on).
+ * Linked from "Edit my card" in the card's top-right menu.
  */
 export default async function OwnerEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -28,7 +28,7 @@ export default async function OwnerEditPage({ params }: { params: Promise<{ slug
         <p className="mt-2 max-w-sm text-sm text-ink-2">
           {result.kind === "error"
             ? "We couldn't reach the server. Please try again in a moment."
-            : "Owner editing is switched off or not part of this card's package. Contact TapAccess to change your links."}
+            : "Owner editing is switched off or not part of this card's package. Contact TapAccess to change your card."}
         </p>
         <a href={`/c/${slug}`} className="mt-6 text-sm font-medium text-brand hover:underline">
           Back to the card

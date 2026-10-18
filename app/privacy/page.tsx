@@ -79,7 +79,7 @@ export default function PrivacyPage() {
       <Section title="Security">
         <p>
           All pages are served over encrypted HTTPS. Business details are managed by the TapAccess administrator. On the Business package,
-          the administrator can give a business an access code that lets it change only its own card&apos;s buttons and social links; codes
+          the administrator can give a business an access code that lets it change only its own card&apos;s profile, photos, buttons, links and colours; codes
           are stored scrambled, attempts are limited, and a code can be replaced or switched off at any time.
         </p>
       </Section>

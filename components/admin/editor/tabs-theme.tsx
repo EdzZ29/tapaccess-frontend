@@ -54,12 +54,15 @@ export function ThemeTab({
   cardId,
   plan,
   onUpgrade,
+  allowLayout = true,
 }: {
   theme: Theme;
   onChange: (patch: Partial<Theme>) => void;
   cardId: string;
   plan: CardPlan;
   onUpgrade: () => void;
+  /** Button style, button shape and header layout (left out of the owner's editor). */
+  allowLayout?: boolean;
 }) {
   const presets = (
     <EditorCard title="Presets" description="A starting point. Every colour stays editable below.">
@@ -145,11 +148,13 @@ export function ThemeTab({
         </div>
       </EditorCard>
 
-      <EditorCard title="Buttons & layout">
-        <Choice label="Button style" value={theme.buttonStyle} onChange={(v) => onChange({ buttonStyle: v })} options={BUTTON_STYLES} />
-        <Choice label="Button shape" value={theme.buttonShape} onChange={(v) => onChange({ buttonShape: v })} options={BUTTON_SHAPES} />
-        <Choice label="Header layout" value={theme.layout} onChange={(v) => onChange({ layout: v })} options={LAYOUTS} />
-      </EditorCard>
+      {allowLayout && (
+        <EditorCard title="Buttons & layout">
+          <Choice label="Button style" value={theme.buttonStyle} onChange={(v) => onChange({ buttonStyle: v })} options={BUTTON_STYLES} />
+          <Choice label="Button shape" value={theme.buttonShape} onChange={(v) => onChange({ buttonShape: v })} options={BUTTON_SHAPES} />
+          <Choice label="Header layout" value={theme.layout} onChange={(v) => onChange({ layout: v })} options={LAYOUTS} />
+        </EditorCard>
+      )}
     </div>
   );
 }

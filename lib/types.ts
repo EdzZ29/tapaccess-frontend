@@ -298,11 +298,16 @@ export interface AdminUser {
 }
 
 /** What a card owner sees and edits in their self-service editor. */
+/** A card as its owner's editor loads it (GET /owner/card). */
 export interface OwnerCard {
   slug: string;
   businessName: string;
   plan: CardPlan;
   lastEditAt: string | null;
+  /** Sent back with a save, so changes TapAccess made since aren't overwritten. */
+  updatedAt: string;
+  profile: ProfileFields;
+  sections: Section[];
   buttons: CardButton[];
   socialLinks: SocialLink[];
 }

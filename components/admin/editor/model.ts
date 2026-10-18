@@ -56,12 +56,17 @@ export function toPayload(doc: EditorDoc): ProfileDocument {
       type: s.type,
       title: s.title?.trim() ? s.title : null,
       enabled: s.enabled,
-      items: s.items.map(strip),
+      items: s.type === "gallery" ? s.items.map((i) => strip(withPhotoTitle(i))) : s.items.map(strip),
     })),
     buttons: doc.buttons.map(strip),
     socialLinks: doc.socialLinks.map(strip),
   };
 }
+
+/** The API needs a title on every item; a gallery photo's is only its (optional) description. */
+export const PHOTO_FALLBACK_TITLE = "Photo";
+export const withPhotoTitle = <T extends { title: string }>(item: T): T =>
+  item.title.trim() ? item : { ...item, title: PHOTO_FALLBACK_TITLE };
 
 export function move<T>(list: T[], index: number, delta: -1 | 1): T[] {
   const target = index + delta;
@@ -121,7 +126,7 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
       .map((s) => ({
         type: s.type,
         title: s.title,
-        items: s.items
+        items: (s.type === "gallery" ? s.items.map(withPhotoTitle) : s.items)
           .filter((i) => isLive(i, now) && i.title.trim())
           .map((i) => ({
             id: rowKey(i),
@@ -148,7 +153,7 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
 
 /** "buttons.0.url must be…" → "Button 1: url must be…" */
 export function humanizeApiError(message: string): string {
-  const m = /^(profile\.theme|profile|buttons|socialLinks|sections)\.?(\d+)?\.?(?:items\.(\d+)\.)?(\w+)?\s+(.*)$/.exec(message);
+  const m = /^(profile\.theme|profile|theme|gallery|buttons|socialLinks|sections)\.?(\d+)?\.?(?:items\.(\d+)\.)?(\w+)?\s+(.*)$/.exec(message);
   if (!m) return message;
   const [, area, index, itemIndex, field, rest] = m;
   const label =
@@ -158,9 +163,13 @@ export function humanizeApiError(message: string): string {
         ? `Social link ${Number(index) + 1}`
         : area === "sections"
           ? `Section ${Number(index) + 1}${itemIndex ? `, item ${Number(itemIndex) + 1}` : ""}`
-          : area === "profile.theme"
-            ? "Theme"
-            : "Profile";
+          : area === "gallery"
+            ? itemIndex
+              ? `Photo ${Number(itemIndex) + 1}`
+              : "Gallery"
+            : area === "profile.theme" || area === "theme"
+              ? "Theme"
+              : "Profile";
   return `${label}: ${field ?? ""} ${rest}`.replace(/\s+/g, " ").trim();
 }
 

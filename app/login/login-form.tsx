@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { api, ApiError } from "@/lib/api";
@@ -20,6 +20,12 @@ export function LoginForm() {
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(params.get("expired") ? "Your session expired. Please sign in again." : null);
   const [loading, setLoading] = useState(false);
+
+  // Wake the API (and its database connections) while the password is typed,
+  // so signing in doesn't also wait for a cold start.
+  useEffect(() => {
+    fetch("/api/health", { cache: "no-store" }).catch(() => undefined);
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -13,8 +13,8 @@ import type { CardDetail } from "@/lib/types";
 import { cardUrl, formatDate } from "@/lib/utils";
 
 /**
- * Business cards: lets the card's owner edit their own CTA buttons and
- * social links with an access code. Each card gets one code, made the first
+ * Business cards: lets the card's owner edit their own profile, photo
+ * gallery, buttons, links and theme colours with an access code. Each card gets one code, made the first
  * time access is turned on; turning access off and on keeps it, and the
  * admin can always see it here to give it to the owner again.
  */
@@ -70,14 +70,14 @@ export function OwnerAccessPanel({ card, onChange }: { card: CardDetail; onChang
   }
 
   const message = code
-    ? `Edit your TapAccess card's buttons and social links:\n${editUrl}\nAccess code: ${code}\n(Or tap "Edit my links" at the bottom of your card.)`
+    ? `Edit your TapAccess card (profile, photos, buttons, links and colours):\n${editUrl}\nAccess code: ${code}\n(Or open the menu at the top right of your card and tap "Edit my card".)`
     : "";
 
   return (
     <Panel className="mt-4">
       <PanelHeader
         title="Owner access"
-        description="Let the card's owner change their own buttons and social links. Everything else stays with you."
+        description="Let the card's owner change their profile, logo and cover, photo gallery, buttons, links and theme colours and fonts. Contact details, hours, sections, button style and layout stay with you."
       />
       <div className="space-y-4 p-5">
         {card.plan !== "business" ? (

@@ -4,6 +4,7 @@
 
 import { ArrowUpRight, ChevronLeft, ChevronRight, Globe, Mail, MapPin, Navigation, Phone, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { SECTION_META, socialLabel, VCARD_ACTION, WEEKDAYS } from "@/lib/constants";
 import type { PublicProfile } from "@/lib/types";
 import { cn, formatDate, mapsSearchUrl, telHref, whatsappHref } from "@/lib/utils";
@@ -482,16 +483,28 @@ function Announcements({ items, title }: { items: Item[]; title: string }) {
   );
 }
 
+/** Whether a gallery photo spans both columns: the first, and a last one that would sit alone. */
+function widePhoto(index: number, count: number): boolean {
+  if (count === 2) return false;
+  if (index === 0) return true;
+  return index === count - 1 && (count - 1) % 2 === 1;
+}
+
 function Gallery({ items, title }: { items: Item[]; title: string }) {
   const photos = items.filter((i) => i.imageUrl);
   const [open, setOpen] = useState<number | null>(null);
+  // The list can change under an open viewer (live preview), so never index past it.
+  const current = open !== null && open < photos.length ? photos[open] : undefined;
+  const showing = current !== undefined;
+  const count = photos.length;
+  const step = (delta: 1 | -1) => setOpen((o) => (o === null ? o : (o + delta + count) % count));
 
   useEffect(() => {
-    if (open === null) return;
+    if (!showing) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(null);
-      if (e.key === "ArrowRight") setOpen((o) => (o === null ? o : (o + 1) % photos.length));
-      if (e.key === "ArrowLeft") setOpen((o) => (o === null ? o : (o - 1 + photos.length) % photos.length));
+      if (e.key === "ArrowRight") setOpen((o) => (o === null ? o : (o + 1) % count));
+      if (e.key === "ArrowLeft") setOpen((o) => (o === null ? o : (o - 1 + count) % count));
     };
     window.addEventListener("keydown", onKey);
     const overflow = document.body.style.overflow;
@@ -500,58 +513,105 @@ function Gallery({ items, title }: { items: Item[]; title: string }) {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
     };
-  }, [open, photos.length]);
+  }, [showing, count]);
 
   return (
     <Block title={title}>
-      {/* Editorial grid: the first photo runs full width. */}
+      {/* Editorial grid: the first photo runs full width, and so does a last one that would sit alone. */}
       <ul className="grid grid-cols-2 gap-2">
-        {photos.map((p, index) => (
-          <li key={p.id} className={cn(index === 0 && photos.length !== 2 && "col-span-2")}>
-            <button
-              type="button"
-              onClick={() => setOpen(index)}
-              className={cn("block w-full overflow-hidden rounded-2xl", index === 0 && photos.length !== 2 ? "aspect-[16/10]" : "aspect-square")}
-              aria-label={`Open photo ${index + 1}${p.title ? `: ${p.title}` : ""}`}
-            >
-              <img src={p.imageUrl!} alt={p.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-            </button>
-          </li>
-        ))}
+        {photos.map((p, index) => {
+          const wide = widePhoto(index, count);
+          return (
+            <li key={p.id} className={cn("min-w-0", wide && "col-span-2")}>
+              <button
+                type="button"
+                onClick={() => setOpen(index)}
+                className={cn("block w-full overflow-hidden rounded-2xl", wide ? "aspect-[16/10]" : "aspect-square")}
+                style={{ background: "var(--p-hairline)" }}
+                aria-label={`Open photo ${index + 1} of ${count}${p.title ? `: ${p.title}` : ""}`}
+              >
+                <img src={p.imageUrl!} alt={p.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
-      {open !== null && (
-        <div role="dialog" aria-modal="true" aria-label="Photo viewer" className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4" onClick={() => setOpen(null)}>
-          <img src={photos[open].imageUrl!} alt={photos[open].title} className="max-h-[85dvh] max-w-full rounded-xl object-contain" onClick={(e) => e.stopPropagation()} />
-          <button className="absolute top-4 right-4 rounded-full bg-white/10 p-2.5 text-white" aria-label="Close" onClick={() => setOpen(null)}>
-            <X className="h-6 w-6" />
-          </button>
-          {photos.length > 1 && (
-            <>
-              <button
-                className="absolute left-3 rounded-full bg-white/10 p-2.5 text-white"
-                aria-label="Previous photo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpen((open - 1 + photos.length) % photos.length);
-                }}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                className="absolute right-3 rounded-full bg-white/10 p-2.5 text-white"
-                aria-label="Next photo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpen((open + 1) % photos.length);
-                }}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      {current && open !== null && <PhotoViewer photo={current} index={open} count={count} onStep={step} onClose={() => setOpen(null)} />}
     </Block>
+  );
+}
+
+/**
+ * Full-screen photo viewer. Rendered into <body>: the card is a CSS
+ * container, which would otherwise size a "fixed" overlay to the whole page
+ * instead of the screen. Controls sit above and below the photo, never on it.
+ */
+function PhotoViewer({
+  photo,
+  index,
+  count,
+  onStep,
+  onClose,
+}: {
+  photo: Item;
+  index: number;
+  count: number;
+  onStep: (delta: 1 | -1) => void;
+  onClose: () => void;
+}) {
+  const [touchX, setTouchX] = useState<number | null>(null);
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo viewer"
+      className="fixed inset-0 z-[100] flex flex-col bg-black/95 text-white"
+      onClick={onClose}
+      onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (touchX === null || count < 2) return;
+        const dx = e.changedTouches[0].clientX - touchX;
+        setTouchX(null);
+        if (Math.abs(dx) > 50) onStep(dx < 0 ? 1 : -1);
+      }}
+    >
+      <div className="flex shrink-0 items-center justify-between gap-3 px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3">
+        <span className="text-sm text-white/80 tabular-nums">{count > 1 ? `${index + 1} / ${count}` : ""}</span>
+        <button className="rounded-full bg-white/10 p-2.5 hover:bg-white/20" aria-label="Close" onClick={onClose}>
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+      <div className="flex min-h-0 flex-1 items-center justify-center px-4">
+        <img src={photo.imageUrl!} alt={photo.title} className="max-h-full max-w-full rounded-xl object-contain" onClick={(e) => e.stopPropagation()} />
+      </div>
+      <div className="flex shrink-0 items-center justify-center gap-6 px-4 pt-3 pb-[max(env(safe-area-inset-bottom),1.25rem)]">
+        {count > 1 && (
+          <>
+            <button
+              className="rounded-full bg-white/10 p-3 hover:bg-white/20"
+              aria-label="Previous photo"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStep(-1);
+              }}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <button
+              className="rounded-full bg-white/10 p-3 hover:bg-white/20"
+              aria-label="Next photo"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStep(1);
+              }}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
   );
 }
