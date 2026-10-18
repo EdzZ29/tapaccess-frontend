@@ -210,7 +210,8 @@ export const STATUS_META: Record<CardStatus, { label: string; description: strin
 
 export const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-export const LIMITS = { buttons: 20, socialLinks: 15, itemsPerSection: 40, uploadMb: 8 } as const;
+/** Mirrors the API. `galleryPhotos`: photos in the gallery (hidden ones included); the card shows at most this many. */
+export const LIMITS = { buttons: 20, socialLinks: 15, itemsPerSection: 40, galleryPhotos: 8, uploadMb: 8 } as const;
 
 /** One-click starting points in the theme editor: flat, restrained palettes. */
 export const THEME_PRESETS: { name: string; theme: Partial<Theme> }[] = [

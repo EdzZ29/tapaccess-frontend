@@ -5,7 +5,7 @@
 import { ArrowUpRight, ChevronLeft, ChevronRight, Globe, Mail, MapPin, Navigation, Phone, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { SECTION_META, socialLabel, VCARD_ACTION, WEEKDAYS } from "@/lib/constants";
+import { LIMITS, SECTION_META, socialLabel, VCARD_ACTION, WEEKDAYS } from "@/lib/constants";
 import type { PublicProfile } from "@/lib/types";
 import { cn, formatDate, mapsSearchUrl, telHref, whatsappHref } from "@/lib/utils";
 import { ActionLink } from "./action-link";
@@ -491,7 +491,8 @@ function widePhoto(index: number, count: number): boolean {
 }
 
 function Gallery({ items, title }: { items: Item[]; title: string }) {
-  const photos = items.filter((i) => i.imageUrl);
+  // The API already sends at most this many; cached pages from before the limit may hold more.
+  const photos = items.filter((i) => i.imageUrl).slice(0, LIMITS.galleryPhotos);
   const [open, setOpen] = useState<number | null>(null);
   // The list can change under an open viewer (live preview), so never index past it.
   const current = open !== null && open < photos.length ? photos[open] : undefined;

@@ -8,7 +8,7 @@ import { BrandLogo } from "@/components/brand";
 import { EditorCard, TextInput } from "@/components/admin/editor/controls";
 import { GalleryManager, type Photo } from "@/components/admin/editor/gallery-manager";
 import { MediaTargetProvider, OWNER_MEDIA } from "@/components/admin/editor/image-picker";
-import { humanizeApiError, toPreview, withPhotoTitle, type EditorDoc, type Keyed, type LinksDoc } from "@/components/admin/editor/model";
+import { galleryOverLimit, humanizeApiError, toPreview, withPhotoTitle, type EditorDoc, type Keyed, type LinksDoc } from "@/components/admin/editor/model";
 import { ButtonsTab } from "@/components/admin/editor/tabs-buttons";
 import { ProfileTab } from "@/components/admin/editor/tabs-profile";
 import { ThemeTab } from "@/components/admin/editor/tabs-theme";
@@ -305,6 +305,13 @@ function CardEditor({
       setTab("profile");
       setMobileView("edit");
       toast.error(doc.profile.theme.layout === "personal" ? "Your name can't be empty" : "Your business name can't be empty");
+      return;
+    }
+    const tooMany = galleryOverLimit(doc.gallery.items.length);
+    if (tooMany) {
+      setTab("gallery");
+      setMobileView("edit");
+      toast.error(tooMany);
       return;
     }
     const unnamed = doc.buttons.findIndex((b) => !b.label.trim() || !b.url.trim());

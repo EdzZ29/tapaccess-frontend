@@ -13,7 +13,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { api, ApiError, errorMessage } from "@/lib/api";
 import type { CardDetail, CardPlan, ProfileFields, Theme } from "@/lib/types";
 import { cardUrl, cn } from "@/lib/utils";
-import { docFromCard, humanizeApiError, toPayload, toPreview, type EditorDoc } from "./model";
+import { docFromCard, galleryOverLimit, humanizeApiError, toPayload, toPreview, type EditorDoc } from "./model";
 import { ButtonsTab } from "./tabs-buttons";
 import { ContactTab, ProfileTab } from "./tabs-profile";
 import { SectionsTab } from "./tabs-sections";
@@ -49,6 +49,12 @@ export function ProfileEditor({ card: initial, onCardChange }: { card: CardDetai
     if (!doc.profile.businessName.trim()) {
       setTab("profile");
       toast.error("Business name is required");
+      return;
+    }
+    const tooMany = galleryOverLimit(doc.sections.find((s) => s.type === "gallery")?.items.length ?? 0);
+    if (tooMany) {
+      setTab("sections");
+      toast.error(tooMany);
       return;
     }
     setSaving(true);

@@ -51,7 +51,8 @@ export function GalleryManager({
   const [dragOver, setDragOver] = useState(false);
 
   const uploading = pending.length > 0;
-  const free = LIMITS.itemsPerSection - items.length;
+  const free = LIMITS.galleryPhotos - items.length;
+  const over = items.length - LIMITS.galleryPhotos;
   const editingIndex = editing ? items.findIndex((p) => rowKey(p) === editing) : -1;
   /** The photo the card shows first (and largest). */
   const firstShown = items.findIndex((p) => p.enabled && p.imageUrl);
@@ -82,13 +83,13 @@ export function GalleryManager({
     if (input.current) input.current.value = "";
     if (files.length === 0 || uploading) return;
     if (free <= 0) {
-      toast.error(`Your gallery is full (${LIMITS.itemsPerSection} photos)`, { description: "Remove a photo to make room for another." });
+      toast.error(`Your gallery is full (${LIMITS.galleryPhotos} photos)`, { description: "Remove a photo to make room for another." });
       return;
     }
     const batch = files.slice(0, free);
     if (files.length > free) {
       toast.warning(`Only ${free} more photo${free === 1 ? "" : "s"} fit`, {
-        description: `A gallery holds up to ${LIMITS.itemsPerSection} photos, so ${files.length - free} of the ${files.length} you chose were skipped.`,
+        description: `A gallery holds up to ${LIMITS.galleryPhotos} photos, so ${files.length - free} of the ${files.length} you chose were skipped.`,
       });
     }
     const queue = batch.map((f) => ({ key: newKey(), name: f.name }));
@@ -98,7 +99,7 @@ export function GalleryManager({
       try {
         const asset = await uploadImage(file, "gallery", cardId, target);
         const photo: Photo = { ...emptyItem(), imageUrl: asset.url };
-        update((current) => (current.length >= LIMITS.itemsPerSection ? current : [...current, photo]));
+        update((current) => (current.length >= LIMITS.galleryPhotos ? current : [...current, photo]));
         added++;
       } catch (err) {
         toast.error(`Couldn't add "${shortName(file.name)}"`, { description: errorMessage(err), duration: 10_000 });
@@ -147,10 +148,17 @@ export function GalleryManager({
           {uploading ? `Uploading ${pending.length} photo${pending.length > 1 ? "s" : ""}…` : free <= 0 ? "Gallery is full" : "Choose photos"}
         </Button>
         <p className="text-xs text-ink-3 tabular-nums">
-          {items.length} of {LIMITS.itemsPerSection} photos
+          {items.length} of {LIMITS.galleryPhotos} photos
         </p>
         <input ref={input} type="file" multiple accept={ACCEPT} className="sr-only" tabIndex={-1} onChange={(e) => void addFiles(e.target.files)} />
       </div>
+
+      {over > 0 && (
+        <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
+          A gallery holds up to {LIMITS.galleryPhotos} photos and this one has {items.length}. Remove {over} to save your changes; until then the card
+          shows the first {LIMITS.galleryPhotos}.
+        </p>
+      )}
 
       {(items.length > 0 || uploading) && (
         <>

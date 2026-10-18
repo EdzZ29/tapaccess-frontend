@@ -1,3 +1,4 @@
+import { LIMITS } from "@/lib/constants";
 import { applyPlan, sectionAlwaysOn } from "@/lib/plans";
 import type {
   CardButton,
@@ -68,6 +69,16 @@ export const PHOTO_FALLBACK_TITLE = "Photo";
 export const withPhotoTitle = <T extends { title: string }>(item: T): T =>
   item.title.trim() ? item : { ...item, title: PHOTO_FALLBACK_TITLE };
 
+/** Like the API: the gallery shows its first photos only, up to LIMITS.galleryPhotos. */
+export const capGallery = <T extends { imageUrl: string | null }>(type: string, items: T[]): T[] =>
+  type === "gallery" ? items.filter((i) => i.imageUrl).slice(0, LIMITS.galleryPhotos) : items;
+
+/** A save the API would refuse because the gallery holds too many photos (message for the editor). */
+export function galleryOverLimit(count: number): string | null {
+  const over = count - LIMITS.galleryPhotos;
+  return over > 0 ? `A gallery holds up to ${LIMITS.galleryPhotos} photos. Remove ${over}, then save.` : null;
+}
+
 export function move<T>(list: T[], index: number, delta: -1 | 1): T[] {
   const target = index + delta;
   if (target < 0 || target >= list.length) return list;
@@ -126,8 +137,10 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
       .map((s) => ({
         type: s.type,
         title: s.title,
-        items: (s.type === "gallery" ? s.items.map(withPhotoTitle) : s.items)
-          .filter((i) => isLive(i, now) && i.title.trim())
+        items: capGallery(
+          s.type,
+          (s.type === "gallery" ? s.items.map(withPhotoTitle) : s.items).filter((i) => isLive(i, now) && i.title.trim()),
+        )
           .map((i) => ({
             id: rowKey(i),
             title: i.title,
@@ -153,7 +166,10 @@ export function toPreview(doc: EditorDoc, slug: string, plan: CardPlan): PublicP
 
 /** "buttons.0.url must be…" → "Button 1: url must be…" */
 export function humanizeApiError(message: string): string {
-  const m = /^(profile\.theme|profile|theme|gallery|buttons|socialLinks|sections)\.?(\d+)?\.?(?:items\.(\d+)\.)?(\w+)?\s+(.*)$/.exec(message);
+  // A full sentence from the API behind a field path ("gallery.A gallery holds…"): show just the sentence.
+  const sentence = /^[\w.]+\.([A-Z].*)$/.exec(message);
+  if (sentence) return sentence[1];
+  const m =/^(profile\.theme|profile|theme|gallery|buttons|socialLinks|sections)\.?(\d+)?\.?(?:items\.(\d+)\.)?(\w+)?\s+(.*)$/.exec(message);
   if (!m) return message;
   const [, area, index, itemIndex, field, rest] = m;
   const label =
