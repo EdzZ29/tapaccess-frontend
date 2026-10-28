@@ -26,6 +26,8 @@ export default function NewCardPage() {
   const [saving, setSaving] = useState(false);
   const [codeError, setCodeError] = useState<string | null>(null);
   const check = useSlugCheck(slug);
+  // A Personal card is for one person, so the fields are named for one.
+  const personal = plan === "personal";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,14 +57,14 @@ export default function NewCardPage() {
 
       <form onSubmit={submit}>
         <Panel className="space-y-5 p-5 sm:p-6">
-          <Field label="Business name">
+          <Field label={personal ? "Full name" : "Business name"}>
             {(p) => (
               <Input
                 {...p}
                 autoFocus
                 required
                 maxLength={120}
-                placeholder="ActiveZone Fitness"
+                placeholder={personal ? "Maria Santos" : "ActiveZone Fitness"}
                 value={businessName}
                 onChange={(e) => {
                   setBusinessName(e.target.value);
@@ -87,12 +89,15 @@ export default function NewCardPage() {
           <div className="space-y-2">
             <p className="text-sm font-medium text-ink">Package</p>
             <PlanPicker value={plan} onChange={setPlan} />
-            <p className="text-xs text-ink-3">You can change the package later; switching never deletes content.</p>
+            <p className="text-xs text-ink-3">
+              You can change the package later; switching never deletes content.
+              {personal && " Personal cards start on the Personal layout: a large round photo above the name."}
+            </p>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Category" optional>
-              {(p) => <Input {...p} maxLength={80} placeholder="Gym & Fitness" value={category} onChange={(e) => setCategory(e.target.value)} />}
+            <Field label={personal ? "Job title" : "Category"} optional>
+              {(p) => <Input {...p} maxLength={80} placeholder={personal ? "Real estate agent" : "Gym & Fitness"} value={category} onChange={(e) => setCategory(e.target.value)} />}
             </Field>
             <Field label="Card ID" optional hint="Leave empty to auto-number (TA-000001…)" error={codeError}>
               {(p) => (

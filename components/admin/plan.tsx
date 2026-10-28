@@ -1,12 +1,12 @@
 "use client";
 
-import { Check, Gem, Lock, Rocket } from "lucide-react";
+import { Check, Gem, Lock, Rocket, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { PLAN_META } from "@/lib/plans";
 import type { CardPlan } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const ICONS = { starter: Rocket, business: Gem } as const;
+const ICONS = { starter: Rocket, personal: UserRound, business: Gem } as const;
 
 export function PlanBadge({ plan, className }: { plan: CardPlan; className?: string }) {
   const Icon = ICONS[plan];
@@ -27,7 +27,7 @@ export function PlanBadge({ plan, className }: { plan: CardPlan; className?: str
 /** Radio cards for choosing a package. */
 export function PlanPicker({ value, onChange }: { value: CardPlan; onChange: (p: CardPlan) => void }) {
   return (
-    <div role="radiogroup" aria-label="Package" className="grid gap-3 sm:grid-cols-2">
+    <div role="radiogroup" aria-label="Package" className="grid gap-3 sm:grid-cols-3">
       {(Object.keys(PLAN_META) as CardPlan[]).map((plan) => {
         const meta = PLAN_META[plan];
         const Icon = ICONS[plan];

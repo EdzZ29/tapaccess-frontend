@@ -7,7 +7,7 @@ import { PlanLock } from "@/components/admin/plan";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { LIMITS, SECTION_META } from "@/lib/constants";
-import { sectionAllowed, sectionAlwaysOn } from "@/lib/plans";
+import { PLAN_META, sectionAllowed, sectionAlwaysOn } from "@/lib/plans";
 import type { CardPlan, SectionItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { RowControls, TextInput } from "./controls";
@@ -57,7 +57,7 @@ export function SectionsTab({
       <p className="text-sm text-ink-2">Turn sections on or off and set their order on the page. Empty sections are hidden automatically.</p>
       {locked && (
         <PlanLock action={<UpgradeButton onClick={onUpgrade} />}>
-          Starter cards show <strong className="text-ink">Links</strong>, <strong className="text-ink">About</strong>,{" "}
+          {PLAN_META[plan].label} cards show <strong className="text-ink">Links</strong>, <strong className="text-ink">About</strong>,{" "}
           <strong className="text-ink">Quick Actions</strong> and <strong className="text-ink">Social Media</strong>. Other sections are kept but hidden
           until the card moves to Business.
         </PlanLock>
@@ -93,7 +93,7 @@ export function SectionsTab({
                     {hiddenWithContent ? (
                       <span className="block truncate text-xs font-medium text-warning-ink">Hidden on the card. Switch on to show it</span>
                     ) : (
-                      <span className="block truncate text-xs text-ink-3">{auto ? "Always shown on Starter when filled in" : meta.description}</span>
+                      <span className="block truncate text-xs text-ink-3">{auto ? `Always shown on ${PLAN_META[plan].label} when filled in` : meta.description}</span>
                     )}
                   </span>
                 </button>

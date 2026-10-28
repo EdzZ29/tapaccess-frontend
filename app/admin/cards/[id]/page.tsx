@@ -139,12 +139,21 @@ function DetailsPanel({ card, onSaved }: { card: CardDetail; onSaved: (c: CardDe
   }
 
   async function save() {
-    if (plan === "starter" && card.plan === "business") {
+    if (plan === "starter" && card.plan !== "starter") {
       const ok = await confirm({
         title: "Switch to the Starter package?",
         description:
-          "The logo, photos, extra sections and social links other than Facebook will be hidden on the public page. The theme stays. Nothing is deleted, and switching back restores them.",
+          "The logo, photos, extra sections and social links other than Facebook, Instagram, TikTok, X and Google Reviews will be hidden on the public page. The theme stays. Nothing is deleted, and switching back restores them.",
         confirmLabel: "Switch to Starter",
+      });
+      if (!ok) return;
+    }
+    if (plan === "personal" && card.plan === "business") {
+      const ok = await confirm({
+        title: "Switch to the Personal package?",
+        description:
+          "Services, products, promotions, gallery, hours, map and announcements will be hidden on the public page, and owner editing is paused. The profile picture, social links and theme stay. Nothing is deleted, and switching back restores them.",
+        confirmLabel: "Switch to Personal",
       });
       if (!ok) return;
     }

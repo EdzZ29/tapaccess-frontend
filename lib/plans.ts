@@ -21,6 +21,12 @@ export const PLAN_FEATURES: Record<CardPlan, PlanFeatures> = {
     sections: ["actions", "about", "contact", "social"],
     alwaysOn: ["contact", "social"],
   },
+  personal: {
+    images: true,
+    socialPlatforms: "all",
+    sections: ["actions", "about", "contact", "social"],
+    alwaysOn: ["contact", "social"],
+  },
   business: { images: true, socialPlatforms: "all", sections: "all", alwaysOn: [] },
 };
 
@@ -34,6 +40,17 @@ export const PLAN_META: Record<CardPlan, { label: string; tagline: string; featu
       "Contact details, Call & Save contact",
       "Facebook, Instagram, TikTok, X & Google Reviews",
       "All themes, colours & fonts",
+    ],
+  },
+  personal: {
+    label: "Personal",
+    tagline: "A personal business card for one person",
+    features: [
+      "Your name, job title & about",
+      "Large round profile picture",
+      "Custom CTA buttons",
+      "Contact details, Call & Save contact",
+      "Every social network, incl. LinkedIn & WhatsApp",
     ],
   },
   business: {

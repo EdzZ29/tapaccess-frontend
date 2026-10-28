@@ -11,6 +11,7 @@ import { useConfirm } from "@/components/ui/confirm";
 import { Dialog } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { api, ApiError, errorMessage } from "@/lib/api";
+import { PLAN_META } from "@/lib/plans";
 import type { CardDetail, CardPlan, ProfileFields, Theme } from "@/lib/types";
 import { cardUrl, cn } from "@/lib/utils";
 import { docFromCard, galleryOverLimit, humanizeApiError, toPayload, toPreview, type EditorDoc } from "./model";
@@ -240,7 +241,7 @@ function PlanDialog({ card, onClose, onSaved }: { card: CardDetail; onClose: () 
     setSaving(true);
     try {
       const updated = await api<CardDetail>(`/admin/cards/${card.id}`, { method: "PATCH", body: { plan } });
-      toast.success(`Package changed to ${plan === "business" ? "Business" : "Starter"}`);
+      toast.success(`Package changed to ${PLAN_META[plan].label}`);
       onSaved(updated);
     } catch (err) {
       toast.error(errorMessage(err));

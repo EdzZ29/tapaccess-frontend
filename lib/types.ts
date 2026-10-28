@@ -1,7 +1,7 @@
 /** API response shapes. Mirrors the NestJS mappers in tapaccess-backend. */
 
 export type CardStatus = "active" | "inactive" | "archived";
-export type CardPlan = "starter" | "business";
+export type CardPlan = "starter" | "personal" | "business";
 
 export type SectionType =
   | "about"

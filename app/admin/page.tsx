@@ -48,7 +48,7 @@ export default function OverviewPage() {
         </Panel>
       ) : (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-          <StatTile label="Total cards" value={stats.data?.totalCards} icon={CreditCard} hint={stats.data ? `${stats.data.byPlan.business} Business · ${stats.data.byPlan.starter} Starter` : undefined} />
+          <StatTile label="Total cards" value={stats.data?.totalCards} icon={CreditCard} hint={stats.data ? `${stats.data.byPlan.business} Business · ${stats.data.byPlan.personal} Personal · ${stats.data.byPlan.starter} Starter` : undefined} />
           <StatTile label="Active cards" value={stats.data?.active} icon={CircleCheck} hint="Live public profiles" />
           <StatTile label="Inactive cards" value={stats.data?.inactive} icon={CirclePause} hint="Showing “unavailable”" />
           <StatTile label="Total profile visits" value={stats.data?.totalVisits} icon={Eye} hint="All time, bots excluded" />

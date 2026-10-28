@@ -101,6 +101,7 @@ export default function CardsPage() {
             <option value="">All packages</option>
             <option value="business">Business</option>
             <option value="starter">Starter</option>
+            <option value="personal">Personal</option>
           </Select>
           <Select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort by" className="min-w-0 flex-1 lg:w-44 lg:flex-none">
             {SORTS.map((s) => (
